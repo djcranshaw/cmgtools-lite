@@ -1,0 +1,21 @@
+# Order: NoTNoB, NoTMB, NoTLB, TNoB, TMB, TLB
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_NoTNoB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopNoBottomVeto.root
+
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_NoTMB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root
+
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_NoTLB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopLooseBottomVeto.root
+
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_TNoB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_TopNoBottomVeto.root
+
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_TMB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_TopMediumBottomVeto.root
+
+python ../prepareEventVariablesFriendTree.py -t NanoAOD -d TTHnobb_fxfx ../../macros/diff/skimmedTrees_16/ 2lss_diff_Top-tagged/ -I CMGTools.TTHAnalysis.tools.nanoAOD.ttH_modules higgsRecoTTH_TLB -F Friends ../../macros/diff/skimmedTrees_16/0_jmeUnc_v1/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/2_scalefactors/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/3_tauCount/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/1_recl/{cname}_Friend.root -F Friends ../../macros/diff/skimmedTrees_16/5_BDThtt_reco/{cname}_Friend.root --env uclouvain
+mv 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root 2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_TopLooseBottomVeto.root
+
+
+
