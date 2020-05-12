@@ -428,6 +428,7 @@
   hst_pTHvis->GetYaxis()->CenterTitle();
   hst_pTHvis->GetXaxis()->SetTitleOffset(Offset);
   hst_pTHvis->GetYaxis()->SetTitleOffset(Offset);
+  hst_pTHvis->GetYaxis()->SetRangeUser(0,0.07);
   hst_pTHvis->SetTitle("PT Dists");
   hst_pTHvis->Draw("HIST");
   hst_pTHgen->Draw("HIST SAME");
