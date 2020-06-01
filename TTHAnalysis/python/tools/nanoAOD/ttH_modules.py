@@ -431,37 +431,37 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.ttH_gen_reco import ttH_gen_reco
 #topRecoModule = lambda : TopRecoSemiLept(constraints=['kWHadMass','kWLepMass','kTopLepMass','kTopHadMass'])
 
 from CMGTools.TTHAnalysis.tools.higgsRecoTTH import HiggsRecoTTH
-higgsRecoTTH_NoTNoB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_NoTopNoBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),
                                      btagDeepCSVveto = 99, # 99 no B veto, or 'M' or 'L'
                                      useTopTagger=False)
-higgsRecoTTH_NoTMB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_NoTopMediumBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),
                                      btagDeepCSVveto = 'M', # 99 no B veto, or 'M' or 'L'
                                      useTopTagger=False)
-higgsRecoTTH_NoTLB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_NoTopLooseBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),
                                      btagDeepCSVveto = 'L', # 99 no B veto, or 'M' or 'L'
                                      useTopTagger=False)
-higgsRecoTTH_TNoB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_TopNoBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),
                                      btagDeepCSVveto = 99, # 99 no B veto, or 'M' or 'L'
                                      useTopTagger=True)
-higgsRecoTTH_TMB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_TopMediumBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),
                                      btagDeepCSVveto = 'M', # 99 no B veto, or 'M' or 'L'
                                      useTopTagger=True)
-higgsRecoTTH_TLB = lambda : HiggsRecoTTH(label="_Recl",
+higgsRecoTTH_TopLooseBottom = lambda : HiggsRecoTTH(label="_Recl",
                                      cut_BDT_rTT_score = 0.0,
                                      cuts_mW_had = (60.,100.),
                                      cuts_mH_vis = (80.,140.),

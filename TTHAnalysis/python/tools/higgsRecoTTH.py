@@ -621,6 +621,9 @@ class HiggsRecoTTH(Module):
                         nmatchedleptons +=1
             
             else: pass  
+            # Sort gen quark by pt
+            aa = 0 if quarkpTinQFromWFromH[0] > quarkpTinQFromWFromH[1] else 1
+            bb = 1 if quarkpTinQFromWFromH[0] > quarkpTinQFromWFromH[1] else 0
             #reconstruction loop dependent vars
             ret["Hreco_minDRlj%s"                     %self.systsJEC[var]] = mindRlj                    if best else -99
             ret["Hreco_delR_H_j1j2%s"                 %self.systsJEC[var]] = delR_H_j1j2                if best else -99
@@ -643,22 +646,22 @@ class HiggsRecoTTH(Module):
             ret["Hreco_delR_H_partons%s"                                      %self.systsJEC[var]] = delR_H_partons
             ret["Hreco_delR_H_q1l%s"                                          %self.systsJEC[var]] = delR_H_q1l
             ret["Hreco_delR_H_q2l%s"                                          %self.systsJEC[var]] = delR_H_q2l
-            ret["Hreco_closestJetInDelR_pt_ToQ1FromWFromH%s"                  %self.systsJEC[var]] = closestJetInDelR_pt_ToQFromWFromH[0]
-            ret["Hreco_closestJetInDelR_pt_ToQ2FromWFromH%s"                  %self.systsJEC[var]] = closestJetInDelR_pt_ToQFromWFromH[1] 
-            ret["Hreco_closestJetInDelR_ptres_ToQ1FromWFromH%s"               %self.systsJEC[var]] = closestJetInDelR_ptres_ToQFromWFromH[0]
-            ret["Hreco_closestJetInDelR_ptres_ToQ2FromWFromH%s"               %self.systsJEC[var]] = closestJetInDelR_ptres_ToQFromWFromH[1]
-            ret["Hreco_closestJetInDelR_delR_ToQ1FromWFromH%s"                %self.systsJEC[var]] = closestJetInDelR_delR_ToQFromWFromH[0]
-            ret["Hreco_closestJetInDelR_delR_ToQ2FromWFromH%s"                %self.systsJEC[var]] = closestJetInDelR_delR_ToQFromWFromH[1]
-            ret["Hreco_closestJetInDelR_flavour_ToQ1FromWFromH%s"             %self.systsJEC[var]] = closestJetInDelR_flavour_ToQFromWFromH[0]
-            ret["Hreco_closestJetInDelR_flavour_ToQ2FromWFromH%s"             %self.systsJEC[var]] = closestJetInDelR_flavour_ToQFromWFromH[1]
-            ret["Hreco_closestJetInPTRes_pt_ToQ1FromWFromH%s"                 %self.systsJEC[var]] = closestJetInPTRes_pt_ToQFromWFromH[0]
-            ret["Hreco_closestJetInPTRes_pt_ToQ2FromWFromH%s"                 %self.systsJEC[var]] = closestJetInPTRes_pt_ToQFromWFromH[1]
-            ret["Hreco_closestJetInPTRes_ptres_ToQ1FromWFromH%s"              %self.systsJEC[var]] = closestJetInPTRes_ptres_ToQFromWFromH[0]
-            ret["Hreco_closestJetInPTRes_ptres_ToQ2FromWFromH%s"              %self.systsJEC[var]] = closestJetInPTRes_ptres_ToQFromWFromH[1]
-            ret["Hreco_closestJetInPTRes_delR_ToQ1FromWFromH%s"               %self.systsJEC[var]] = closestJetInPTRes_delR_ToQFromWFromH[0]
-            ret["Hreco_closestJetInPTRes_delR_ToQ2FromWFromH%s"               %self.systsJEC[var]] = closestJetInPTRes_delR_ToQFromWFromH[1]
-            ret["Hreco_closestJetInPTRes_flavour_ToQ1FromWFromH%s"            %self.systsJEC[var]] = closestJetInPTRes_flavour_ToQFromWFromH[0]
-            ret["Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH%s"            %self.systsJEC[var]] = closestJetInPTRes_flavour_ToQFromWFromH[1]
+            ret["Hreco_closestJetInDelR_pt_ToQ1FromWFromH%s"                  %self.systsJEC[var]] = closestJetInDelR_pt_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInDelR_pt_ToQ2FromWFromH%s"                  %self.systsJEC[var]] = closestJetInDelR_pt_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInDelR_ptres_ToQ1FromWFromH%s"               %self.systsJEC[var]] = closestJetInDelR_ptres_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInDelR_ptres_ToQ2FromWFromH%s"               %self.systsJEC[var]] = closestJetInDelR_ptres_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInDelR_delR_ToQ1FromWFromH%s"                %self.systsJEC[var]] = closestJetInDelR_delR_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInDelR_delR_ToQ2FromWFromH%s"                %self.systsJEC[var]] = closestJetInDelR_delR_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInDelR_flavour_ToQ1FromWFromH%s"             %self.systsJEC[var]] = closestJetInDelR_flavour_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInDelR_flavour_ToQ2FromWFromH%s"             %self.systsJEC[var]] = closestJetInDelR_flavour_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInPTRes_pt_ToQ1FromWFromH%s"                 %self.systsJEC[var]] = closestJetInPTRes_pt_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInPTRes_pt_ToQ2FromWFromH%s"                 %self.systsJEC[var]] = closestJetInPTRes_pt_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInPTRes_ptres_ToQ1FromWFromH%s"              %self.systsJEC[var]] = closestJetInPTRes_ptres_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInPTRes_ptres_ToQ2FromWFromH%s"              %self.systsJEC[var]] = closestJetInPTRes_ptres_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInPTRes_delR_ToQ1FromWFromH%s"               %self.systsJEC[var]] = closestJetInPTRes_delR_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInPTRes_delR_ToQ2FromWFromH%s"               %self.systsJEC[var]] = closestJetInPTRes_delR_ToQFromWFromH[bb]
+            ret["Hreco_closestJetInPTRes_flavour_ToQ1FromWFromH%s"            %self.systsJEC[var]] = closestJetInPTRes_flavour_ToQFromWFromH[aa]
+            ret["Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH%s"            %self.systsJEC[var]] = closestJetInPTRes_flavour_ToQFromWFromH[bb]
 
             #lists from gen loop
             ret["Hreco_nQFromWFromH%s"                %self.systsJEC[var]] = len(QFromWFromH)
@@ -677,14 +680,14 @@ class HiggsRecoTTH(Module):
             ret["Hreco_MGenQuarks%s"                                           %self.systsJEC[var]] = MGenQuarks
             ret["Hreco_pTtgen%s"                                               %self.systsJEC[var]] = pTtgen
             ret["Hreco_pTHgen%s"                                               %self.systsJEC[var]] = pTHgen
-            ret["Hreco_quark1pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[0]
-            ret["Hreco_quark2pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[1]
-            ret["Hreco_quark1Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[0]
-            ret["Hreco_quark2Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[1]
-            ret["Hreco_jet_matches_quark1_delr%s"                              %self.systsJEC[var]] = jets_match_quarks_delr[0]
-            ret["Hreco_jet_matches_quark2_delr%s"                              %self.systsJEC[var]] = jets_match_quarks_delr[1]
-            ret["Hreco_jet_matches_quark1_ptres%s"                             %self.systsJEC[var]] = jets_match_quarks_ptres[0]
-            ret["Hreco_jet_matches_quark2_ptres%s"                             %self.systsJEC[var]] = jets_match_quarks_ptres[1]
+            ret["Hreco_quark1pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[aa]
+            ret["Hreco_quark2pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[bb]
+            ret["Hreco_quark1Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[aa]
+            ret["Hreco_quark2Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[bb]
+            ret["Hreco_jet_matches_quark1_delr%s"                              %self.systsJEC[var]] = jets_match_quarks_delr[aa]
+            ret["Hreco_jet_matches_quark2_delr%s"                              %self.systsJEC[var]] = jets_match_quarks_delr[bb]
+            ret["Hreco_jet_matches_quark1_ptres%s"                             %self.systsJEC[var]] = jets_match_quarks_ptres[aa]
+            ret["Hreco_jet_matches_quark2_ptres%s"                             %self.systsJEC[var]] = jets_match_quarks_ptres[bb]
             ret["Hreco_M_jets_match%s"                                         %self.systsJEC[var]] = M_jets_match
             ret["Hreco_matchRank%s"                                            %self.systsJEC[var]] = matchRank
 

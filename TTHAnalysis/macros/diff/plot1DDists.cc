@@ -8,8 +8,9 @@
   const TString fileName = "2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_"+TVet+BVet+PTResBool+"Veto.root";
 
 // *** Files ***
-  TFile f(fileName);
-//  TFile f("2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root");
+//  TFile f(fileName);
+//  TFile f("2lss_diff_Top-tagged/original/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root");
+  TFile f("2lss_diff_Top-tagged/TTHnobb_fxfx_Friend.root");
 //  TFile f("2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopNoBottomVeto.root");
 //  TFile f("2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root");
 //  TFile f("2lss_diff_Top-tagged/TTHnobb_fxfx_Friend_NoTopLooseBottomVeto.root");
@@ -205,11 +206,20 @@
 
   TH1D *hst_NSelectedMatchesVsNJet = new TH1D("hst_NSelectedMatchesVsNJet","hst_NSelectedMatchesVsNJet",20,-0.5,19.5);
 
-  TH2D *hst_flavourMatchEffQ1 = new TH2D("hst_flavourMatchEffQ1","hst_flavourMatchEffQ1",20,0.05,2.05,20,0.05,2.05); // FIXME
-  TH2D *hst_flavourMatchEffQ2 = new TH2D("hst_flavourMatchEffQ2","hst_flavourMatchEffQ2",20,0.05,2.05,20,0.05,2.05); // FIXME
+  TH2D *hst_flavourMatchEffQ1 = new TH2D("hst_flavourMatchEffQ1","hst_flavourMatchEffQ1",80,0.0125,2.0125,80,0.0125,2.0125); // FIXME
+  TH2D *hst_flavourMatchEffQ2 = new TH2D("hst_flavourMatchEffQ2","hst_flavourMatchEffQ2",80,0.0125,2.0125,80,0.0125,2.0125); // FIXME
+
+  TH1D *hst_Q1VsPt = new TH1D("hst_Q1VsPt","hst_Q1VsPt",nBins,-0.5,299.5);
+  TH1D *hst_Q1MatchVsPt = new TH1D("hst_Q1MatchVsPt","hst_Q1MatchVsPt",nBins,-0.5,299.5);
+  TH1D *hst_Q1EffVsPt = new TH1D("hst_Q1EffVsPt","hst_Q1EffVsPt",nBins,-0.5,299.5);
+  TH1D *hst_Q2VsPt = new TH1D("hst_Q2VsPt","hst_Q2VsPt",nBins,-0.5,299.5);
+  TH1D *hst_Q2MatchVsPt = new TH1D("hst_Q2MatchVsPt","hst_Q2MatchVsPt",nBins,-0.5,299.5);
+  TH1D *hst_Q2EffVsPt = new TH1D("hst_Q2EffVsPt","hst_Q2EffVsPt",nBins,-0.5,299.5);
 
 // *** Declare Counts ***
-  const int nFMBins = 20;
+  const int nFMBins = 80;
+  const int dRMax   = 2;
+  const int dPtMax  = 2;
   int nEventsJetMatchesQ1             = 0;
   int nEventsJetMatchesQ2             = 0;
   int nEvents2UniqueMatchedJets       = 0;
@@ -233,27 +243,28 @@
     ft->GetEntry(i);
     // Calculate Counts
     if (Hreco_nQFromWFromH != 2) continue;
-    bool uniqueJetMatch = (Hreco_jet_matches_quark1_delr != -99 && 
-                           Hreco_jet_matches_quark2_delr != -99 &&
-                           Hreco_jet_matches_quark1_delr != Hreco_jet_matches_quark2_delr);
-    if (Hreco_jet_matches_quark1_delr != -99) nEventsJetMatchesQ1NoCond ++;
-    if (Hreco_jet_matches_quark2_delr != -99) nEventsJetMatchesQ2NoCond ++;
+    bool Q1Match = Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99 && Hreco_closestJetInDelR_delR_ToQ1FromWFromH < 0.3 && abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) < 0.3;
+    bool Q2Match = Hreco_closestJetInDelR_delR_ToQ2FromWFromH != -99 && Hreco_closestJetInDelR_delR_ToQ2FromWFromH < 0.3 && abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) < 0.3;
+    bool uniqueJetMatch = Q1Match && Q2Match && Hreco_closestJetInDelR_pt_ToQ1FromWFromH != Hreco_closestJetInDelR_pt_ToQ2FromWFromH;
+    if (Q1Match) nEventsJetMatchesQ1NoCond ++;
+    if (Q2Match) nEventsJetMatchesQ2NoCond ++;
     if (uniqueJetMatch) nEvents2UniqueMatchedJetsNoCond ++;
-    if (Hreco_jet_matches_quark1_delr != -99 && Hreco_pTHvis != -99) nEventsJetMatchesQ1 ++;
-    if (Hreco_jet_matches_quark2_delr != -99 && Hreco_pTHvis != -99) nEventsJetMatchesQ2 ++;
+    if (Q1Match && Hreco_pTHvis != -99) nEventsJetMatchesQ1 ++;
+    if (Q2Match && Hreco_pTHvis != -99) nEventsJetMatchesQ2 ++;
     if (uniqueJetMatch && Hreco_pTHvis != -99) nEvents2UniqueMatchedJets ++;
     if (Hreco_matchRank == 0) {
       hst_NSelectedMatchesVsNJet->Fill(Hreco_nJetsInCollection);
     }
+    // Calculate flavour matching plot
     for (int i=0; i<nFMBins; i++) {
       for (int j=0; j<nFMBins; j++) {
-        if ((Hreco_closestJetInDelR_delR_ToQ1FromWFromH < (float)(i+1)*0.1) && (abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) < (float)(j+1)*0.1)) {
+        if ((Hreco_closestJetInDelR_delR_ToQ1FromWFromH < (float)(i+1)*((float)dRMax/(float)nFMBins)) && (abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) < (float)(j+1)*((float)dPtMax/(float)nFMBins))) {
           if (Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99 && abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) != -99) {
             nEventsQ1Total[i][j] ++;
             nEventsQ1MatchFlavour[i][j] += (Hreco_closestJetInDelR_flavour_ToQ1FromWFromH == Hreco_quark1Flavour);
           }
         }
-        if ((Hreco_closestJetInDelR_delR_ToQ2FromWFromH < (float)(i+1)*0.1) && (abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) < (float)(j+1)*0.1)) {
+        if ((Hreco_closestJetInDelR_delR_ToQ2FromWFromH < (float)(i+1)*((float)dRMax/(float)nFMBins)) && (abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) < (float)(j+1)*((float)dPtMax/(float)nFMBins))) {
           if (Hreco_closestJetInDelR_delR_ToQ2FromWFromH != -99 && abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) != -99) {
             nEventsQ2Total[i][j] ++;
             nEventsQ2MatchFlavour[i][j] += (Hreco_closestJetInDelR_flavour_ToQ2FromWFromH == Hreco_quark2Flavour);
@@ -261,19 +272,15 @@
         }
       }
     }
-    // Reorder quarks based on closest in delR to lepton
-//    float jet_matches_quark_near_delr = Hreco_delR_H_q1l_no_cond < Hreco_delR_H_q2l_no_cond ? Hreco_jet_matches_quark1_delr : Hreco_jet_matches_quark2_delr;
-//    float jet_matches_quark_far_delr = Hreco_delR_H_q1l_no_cond < Hreco_delR_H_q2l_no_cond ? Hreco_jet_matches_quark2_delr : Hreco_jet_matches_quark1_delr;
-//    float jet_matches_quark_near_delr_no_cond = Hreco_delR_H_q1l_no_cond < Hreco_delR_H_q2l_no_cond ? Hreco_jet_matches_quark1_delr_no_cond : Hreco_jet_matches_quark2_delr_no_cond;
-//    float jet_matches_quark_far_delr_no_cond = Hreco_delR_H_q1l_no_cond < Hreco_delR_H_q2l_no_cond ? Hreco_jet_matches_quark2_delr_no_cond : Hreco_jet_matches_quark1_delr_no_cond;
-//    jet_matches_quark_near_delr = Hreco_jet_matches_quark1_delr;
-//    jet_matches_quark_far_delr = Hreco_jet_matches_quark2_delr;
-//    jet_matches_quark_near_delr_no_cond = Hreco_jet_matches_quark1_delr_no_cond;
-//    jet_matches_quark_far_delr_no_cond = Hreco_jet_matches_quark2_delr_no_cond;
-//    if (jet_matches_quark_near_delr >= 0) hstJetMatchesQ1DelR->Fill(jet_matches_quark_near_delr);
-//    if (jet_matches_quark_near_delr_no_cond >= 0) hstJetMatchesQ1DelRNoCond->Fill(jet_matches_quark_near_delr_no_cond);
-//    if (jet_matches_quark_far_delr >= 0) hstJetMatchesQ2DelR->Fill(jet_matches_quark_far_delr);
-//    if (jet_matches_quark_far_delr_no_cond >= 0) hstJetMatchesQ2DelRNoCond->Fill(jet_matches_quark_far_delr_no_cond);
+
+    // Plot matching efficiency vs quark pt
+    if (Hreco_quark1pT > 0) hst_Q1VsPt->Fill(Hreco_quark1pT);
+    if (Hreco_quark1pT > 0 && Hreco_closestJetInDelR_delR_ToQ1FromWFromH < 0.3 
+                           && abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) < 0.6) hst_Q1MatchVsPt->Fill(Hreco_quark1pT);
+    if (Hreco_quark2pT > 0) hst_Q2VsPt->Fill(Hreco_quark2pT);
+    if (Hreco_quark2pT > 0 && Hreco_closestJetInDelR_delR_ToQ2FromWFromH != -99 
+                           && Hreco_closestJetInDelR_delR_ToQ2FromWFromH < 0.3 
+                           && abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) < 0.6) hst_Q2MatchVsPt->Fill(Hreco_quark2pT);
 
     // Plot DelR and PTRes Distributions
     if (Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99) hst_closestJetInDelR_delR_ToQ1FromWFromH->Fill(Hreco_closestJetInDelR_delR_ToQ1FromWFromH);
@@ -346,34 +353,24 @@
     }
   }
 
-  // *** Print Counts ***
-  cout << "*** Print Counts For Chart***" << endl;
-  cout << "No cuts:                                                 " << hst_nQFromWFromH->GetBinContent(3) << endl;
-  cout << "Has a NuFromWFromH:                                      " << hst_nNuFromWFromH->GetEntries() - hst_nNuFromWFromH->GetBinContent(1) << endl;
-  cout << "Has a jet that matches quark 1:                          " << nEventsJetMatchesQ1NoCond << endl;
-  cout << "Has a jet that matches quark 2:                          " << nEventsJetMatchesQ2NoCond << endl;
-  cout << "Has two jets, one of each matches quark 1 & 2:           " << nEvents2UniqueMatchedJetsNoCond << endl;
-  cout << "Passes default reconstruction algorithm (*):             " << hst_pTHvis->GetEntries() << endl;
-  cout << "(*) + Has a NuFromWFromH:                                " << hst_pTVisPlusNu->GetEntries() << endl;
-  cout << "(*) + Has a jet that matches quark 1:                    " << nEventsJetMatchesQ1 << endl;
-  cout << "(*) + Has a jet that matches quark 2:                    " << nEventsJetMatchesQ2 << endl;
-  cout << "(*) + Has two jets, one of each matches quark 1 & 2:     " << nEvents2UniqueMatchedJets << endl;
-  cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
-  cout << "the jet pair passes the reco algo as a candidate:        " << hst_matchRank->GetEntries() << endl;
-  cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
-  cout << "both jets are correctly selected by the algo:            " << hst_matchRank->GetBinContent(1) << endl;
-  cout << "\n\n";
-
   // Populate 2D flavour matching histograms
   for (int i=0; i<nFMBins; i++) {
     for (int j=0; j<nFMBins; j++) {
       float Q1frac = (float) nEventsQ1MatchFlavour[i][j] / (float) nEventsQ1Total[i][j];
-      hst_flavourMatchEffQ1->Fill((float)(i+1)/10.0,(float)(j+1)/10.0,Q1frac);
+      hst_flavourMatchEffQ1->Fill((float)(i+1)*((float)dRMax/(float)nFMBins),(float)(j+1)*((float)dPtMax/(float)nFMBins),Q1frac);
       float Q2frac = (float) nEventsQ2MatchFlavour[i][j] / (float) nEventsQ2Total[i][j];
-      hst_flavourMatchEffQ2->Fill((float)(i+1)/10.0,(float)(j+1)/10.0,Q2frac);
+      hst_flavourMatchEffQ2->Fill((float)(i+1)*((float)dRMax/(float)nFMBins),(float)(j+1)*((float)dPtMax/(float)nFMBins),Q2frac);
     }
   }
-  
+
+  // Calculate efficiency plots
+  for (int i=1; i<=nBins; i++) {
+    hst_Q1EffVsPt->SetBinContent(i,(double)hst_Q1MatchVsPt->GetBinContent(i)/(double)hst_Q1VsPt->GetBinContent(i));
+    hst_Q2EffVsPt->SetBinContent(i,(double)hst_Q2MatchVsPt->GetBinContent(i)/(double)hst_Q2VsPt->GetBinContent(i));
+    if (hst_Q1VsPt->GetBinContent(i) == 0) hst_Q1EffVsPt->SetBinContent(i,0);
+    if (hst_Q2VsPt->GetBinContent(i) == 0) hst_Q2EffVsPt->SetBinContent(i,0);
+  }
+
   // Scale all distributions
   hst_pTHvis->Scale(1/hst_pTHvis->GetEntries());
   hst_pTVisPlusNu->Scale(1/hst_pTVisPlusNu->GetEntries());
@@ -400,6 +397,24 @@
   hst_qLargePtNJet1F2->Scale(1/hst_qLargePtNJet1F2->GetEntries());
   hst_qLargePtNJet1F3->Scale(1/hst_qLargePtNJet1F3->GetEntries());
   hst_qLargePtNJet1F4->Scale(1/hst_qLargePtNJet1F4->GetEntries());
+
+  // *** Print Counts ***
+  cout << "*** Print Counts For Chart***" << endl;
+  cout << "No cuts:                                                 " << hst_nQFromWFromH->GetBinContent(3) << endl;
+  cout << "Has a NuFromWFromH:                                      " << hst_nNuFromWFromH->GetEntries() - hst_nNuFromWFromH->GetBinContent(1) << endl;
+  cout << "Has a jet that matches quark 1:                          " << nEventsJetMatchesQ1NoCond << endl;
+  cout << "Has a jet that matches quark 2:                          " << nEventsJetMatchesQ2NoCond << endl;
+  cout << "Has two jets, one of each matches quark 1 & 2:           " << nEvents2UniqueMatchedJetsNoCond << endl;
+  cout << "Passes default reconstruction algorithm (*):             " << hst_pTHvis->GetEntries() << endl;
+  cout << "(*) + Has a NuFromWFromH:                                " << hst_pTVisPlusNu->GetEntries() << endl;
+  cout << "(*) + Has a jet that matches quark 1:                    " << nEventsJetMatchesQ1 << endl;
+  cout << "(*) + Has a jet that matches quark 2:                    " << nEventsJetMatchesQ2 << endl;
+  cout << "(*) + Has two jets, one of each matches quark 1 & 2:     " << nEvents2UniqueMatchedJets << endl;
+  cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
+  cout << "the jet pair passes the reco algo as a candidate:        " << hst_matchRank->GetEntries() << endl;
+  cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
+  cout << "both jets are correctly selected by the algo:            " << hst_matchRank->GetBinContent(1) << endl;
+  cout << "\n\n";
 
   gSystem->Exec("mkdir 1DDistPlots");
   TString VetoString = TVet+BVet+"Veto";
@@ -642,7 +657,7 @@
   hst_flavourMatchEffQ1->GetXaxis()->SetTitle("delR Match Criteria");
   hst_flavourMatchEffQ1->GetYaxis()->SetTitle("ptres Match Criteria");
   hst_flavourMatchEffQ1->GetZaxis()->SetRangeUser(0.5,1);
-  hst_flavourMatchEffQ1->SetTitle("Fraction of Events where Jet matched to Q1 also matches Q1 Flavour");
+  hst_flavourMatchEffQ1->SetTitle("Fraction of Events where jet matched to leading Q also matches parton flavour");
   hst_flavourMatchEffQ1->Draw("colz");
   TLatex tex14(.4,.85,VetoString);
   tex14.SetTextSize(0.03);
@@ -655,7 +670,7 @@
   hst_flavourMatchEffQ2->GetXaxis()->SetTitle("delR Match Criteria");
   hst_flavourMatchEffQ2->GetYaxis()->SetTitle("ptres Match Criteria");
   hst_flavourMatchEffQ2->GetZaxis()->SetRangeUser(0.5,1);
-  hst_flavourMatchEffQ2->SetTitle("Fraction of Events where Jet matched to Q2 also matches Q2 Flavour");
+  hst_flavourMatchEffQ2->SetTitle("Fraction of Events where jet matched to sub-leading Q also matches parton flavour");
   hst_flavourMatchEffQ2->Draw("colz");
   TLatex tex15(.4,.85,VetoString);
   tex15.SetTextSize(0.03);
@@ -703,5 +718,51 @@
   leg18->AddEntry(hst_M_jets_match_ifbest,"If Best");
   leg18->Draw();
   can18->SaveAs("1DDistPlots/plot_MatchedJetsM.png");
+
+  TCanvas *can20 = new TCanvas();
+  hst_Q1VsPt->SetLineColor(kBlue);
+  hst_Q1MatchVsPt->SetLineColor(kRed);
+  hst_Q1VsPt->GetXaxis()->SetTitle("Quark Pt");
+  hst_Q1VsPt->GetYaxis()->SetTitle("N Events");
+  hst_Q1VsPt->SetTitle("Leading Gen Quark Pt Distribution");
+  hst_Q1VsPt->Draw();
+  hst_Q1MatchVsPt->Draw("SAME");
+
+  TLegend *leg20 = new TLegend(0.65,0.65,0.85,0.85);
+  leg20->AddEntry(hst_Q1VsPt,"All Gen Quarks");
+  leg20->AddEntry(hst_Q1MatchVsPt,"Matched Gen Quarks");
+  leg20->Draw();
+  can20->SaveAs("1DDistPlots/plot_Q1Matches.png");
+
+  TCanvas *can21 = new TCanvas();
+  hst_Q2VsPt->SetLineColor(kBlue);
+  hst_Q2MatchVsPt->SetLineColor(kRed);
+  hst_Q2VsPt->GetXaxis()->SetTitle("Quark Pt");
+  hst_Q2VsPt->GetYaxis()->SetTitle("N Events");
+  hst_Q2VsPt->SetTitle("Sub-leading Gen Quark Pt Distribution");
+  hst_Q2VsPt->Draw();
+  hst_Q2MatchVsPt->Draw("SAME");
+
+  TLegend *leg21 = new TLegend(0.65,0.65,0.85,0.85);
+  leg21->AddEntry(hst_Q2VsPt,"All Gen Quarks");
+  leg21->AddEntry(hst_Q2MatchVsPt,"Matched Gen Quarks");
+  leg21->Draw();
+  can21->SaveAs("1DDistPlots/plot_Q2Matches.png");
+
+  TCanvas *can22 = new TCanvas();
+  hst_Q1EffVsPt->SetLineColor(kBlue);
+  hst_Q2EffVsPt->SetLineColor(kRed);
+  hst_Q1EffVsPt->GetXaxis()->SetTitle("Quark Pt");
+  hst_Q1EffVsPt->GetYaxis()->SetTitle("Matching Efficiency");
+  hst_Q1EffVsPt->SetTitle("Quark Matching Efficiency");
+  hst_Q1EffVsPt->Draw();
+  hst_Q2EffVsPt->Draw("SAME");
+
+  TLegend *leg22 = new TLegend(0.65,0.65,0.85,0.85);
+  leg22->AddEntry(hst_Q1EffVsPt,"Leading Quark");
+  leg22->AddEntry(hst_Q2EffVsPt,"Sub-leading Quark");
+  leg22->Draw();
+  can22->SaveAs("1DDistPlots/plot_QMatchEff.png");
+
 }
 
