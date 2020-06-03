@@ -536,7 +536,7 @@ class HiggsRecoTTH(Module):
                         closestJetInDelR_ptres_ToQFromWFromH[idx]    = ptres_delr
                         closestJetInDelR_delR_ToQFromWFromH[idx]     = delRqj_delr
                         closestJetInDelR_flavour_ToQFromWFromH[idx]  = closestjetindelrflavour
-                        if delRqj_delr < 0.3 and abs(ptres_delr) < 0.3: #this is a matched quark
+                        if delRqj_delr < 0.3 and abs(ptres_delr) < 0.6: #this is a matched quark
                             jets_match_quarks_delr[idx]=closestJetInDelRToQFromWFromH[idx]
                     if -99 not in jets_match_quarks_delr and len(QFromWFromH)==2 and var==0:
                         j1 = jetsNoTopNoB[jets_match_quarks_delr[0]]
@@ -571,7 +571,7 @@ class HiggsRecoTTH(Module):
                         closestJetInPTRes_ptres_ToQFromWFromH[idx]   = ptres_ptres
                         closestJetInPTRes_delR_ToQFromWFromH[idx]    = delRqj_ptres
                         closestJetInPTRes_flavour_ToQFromWFromH[idx] = closestjetinptresflavour
-                        if delRqj_ptres < 0.3 and abs(ptres_ptres) < 0.3: #this is a matched quark
+                        if delRqj_ptres < 0.3 and abs(ptres_ptres) < 0.6: #this is a matched quark
                             jets_match_quarks_ptres[idx]=closestJetInPTResToQFromWFromH[idx]
 
 ############# Variables that are only calculable if Reco is successful #############
