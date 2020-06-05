@@ -36,7 +36,7 @@ class HiggsRecoTTH(Module):
             "nNuFromWFromH","nNuFromWFromT","nJetsInCollection",
             #kinematics of gen-level objects and matched objects
             "pTTrueGen","MTrueGen","pTTrueGenPlusNu","pTGenQuarks","MGenQuarks",
-            "pTtgen","pTHgen","quark1pT","quark2pT","quark1Flavour","quark2Flavour",
+            "pTtgen","pTHgen","quark1pT","quark2pT","quark1Eta","quark2Eta","quark1Flavour","quark2Flavour",
             "jet_matches_quark1_delr","jet_matches_quark2_delr",
             "jet_matches_quark1_ptres","jet_matches_quark2_ptres",
             "matchRank"]])
@@ -168,6 +168,7 @@ class HiggsRecoTTH(Module):
         closestJetInPTRes_delR_ToQFromWFromH    =   [-99    ,-99]
         closestJetInPTRes_flavour_ToQFromWFromH =   [-99    ,-99]
         quarkpTinQFromWFromH                    =   [-99    ,-99]
+        quarkEtainQFromWFromH                   =   [-99    ,-99]
         quarkFlavourinQFromWFromH               =   [-99    ,-99]
         jets_match_quarks_delr                  =   [-99    ,-99]
         jets_match_quarks_ptres                 =   [-99    ,-99]
@@ -506,6 +507,7 @@ class HiggsRecoTTH(Module):
                     closestJetInDelRToQFromWFromH[quark_idx]=jet_idx_DeltaR
                     closestJetInPTResToQFromWFromH[quark_idx]=jet_idx_DeltaPT
                     quarkpTinQFromWFromH[quark_idx] = QFromWFromH[quark_idx].p4().Pt()
+                    quarkEtainQFromWFromH[quark_idx] = QFromWFromH[quark_idx].p4().Eta()
                     quarkFlavourinQFromWFromH[quark_idx] = QFromWFromH[quark_idx].pdgId
                     #print("the closest jets list before = " + str(closestJetInDelRToQFromWFromH)) #why does this sometimes print jets with indicies -1,-1
                 if -99 not in closestJetInDelRToQFromWFromH:
@@ -682,6 +684,8 @@ class HiggsRecoTTH(Module):
             ret["Hreco_pTHgen%s"                                               %self.systsJEC[var]] = pTHgen
             ret["Hreco_quark1pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[aa]
             ret["Hreco_quark2pT%s"                                             %self.systsJEC[var]] = quarkpTinQFromWFromH[bb]
+            ret["Hreco_quark1Eta%s"                                            %self.systsJEC[var]] = quarkEtainQFromWFromH[aa]
+            ret["Hreco_quark2Eta%s"                                            %self.systsJEC[var]] = quarkEtainQFromWFromH[bb]
             ret["Hreco_quark1Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[aa]
             ret["Hreco_quark2Flavour%s"                                        %self.systsJEC[var]] = quarkFlavourinQFromWFromH[bb]
             ret["Hreco_jet_matches_quark1_delr%s"                              %self.systsJEC[var]] = jets_match_quarks_delr[aa]
