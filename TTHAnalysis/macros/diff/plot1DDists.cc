@@ -410,15 +410,10 @@
     yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
     yyzz += Hreco_pTTrueGen*Hreco_pTTrueGenPlusNu;
     zzzz += Hreco_pTTrueGenPlusNu*Hreco_pTTrueGenPlusNu;
-    cout << "(" << Hreco_pTHvis << "," << Hreco_pTTrueGen << ")\n";
   }
   double recogencorr = (NN*xxyy - xx*yy)/sqrt((NN*xxxx-xx*xx)*(NN*yyyy-yy*yy));
   double visfullcorr = (NN*yyzz - yy*zz)/sqrt((NN*yyyy-yy*yy)*(NN*zzzz-zz*zz));
   double totalcorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
-  cout << endl;
-  cout << "recogencorr: " << recogencorr << endl;
-  cout << "visfullcorr: " << visfullcorr << endl;
-  cout << "totalcorr:   " << totalcorr << endl;
 
   // Populate 2D flavour matching histograms
   for (int i=0; i<nFMBins; i++) {
@@ -491,7 +486,7 @@
   hst_qLargePtNJet1F4->Scale(1/hst_qLargePtNJet1F4->GetEntries());
 
   // *** Print Counts ***
-  cout << "*** Print Counts For Chart***" << endl;
+  cout << endl << "*** Print Counts For Chart***" << endl;
   cout << "No cuts:                                                 " << hst_nQFromWFromH->GetBinContent(3) << endl;
   cout << "Has a NuFromWFromH:                                      " << hst_nNuFromWFromH->GetEntries() - hst_nNuFromWFromH->GetBinContent(1) << endl;
   cout << "Has a jet that matches quark 1:                          " << nEventsJetMatchesQ1NoCond << endl;
@@ -506,6 +501,10 @@
   cout << "the jet pair passes the reco algo as a candidate:        " << hst_matchRank->GetEntries() << endl;
   cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
   cout << "both jets are correctly selected by the algo:            " << hst_matchRank->GetBinContent(1) << endl;
+  cout << endl << "*** Correlations ***" << endl;
+  cout << "recogencorr: " << recogencorr << endl;
+  cout << "visfullcorr: " << visfullcorr << endl;
+  cout << "totalcorr:   " << totalcorr << endl;
   cout << "\n\n";
 
   gSystem->Exec("mkdir 1DDistPlots");
