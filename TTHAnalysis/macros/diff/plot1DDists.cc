@@ -11,6 +11,8 @@
 //  TFile f(fileName);
 //  TFile f("2lss_diff/original/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root");
   TFile f("2lss_diff/TTHnobb_fxfx_Friend.root");
+//  TFile f("2lss_diff/TTHnobb_fxfx_Current_Friend.root");
+//  TFile f("2lss_diff/TTHnobb_fxfx_NoWindows_Friend.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_Friend_NoTopNoBottomVeto.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_Friend_NoTopLooseBottomVeto.root");
@@ -79,6 +81,7 @@
   float Hreco_MTrueGen;
   float Hreco_pTTrueGenPlusNu;
   float Hreco_pTGenQuarks;
+  float Hreco_dRGenQuarks;
   float Hreco_MGenQuarks;
   float Hreco_pTtgen;
   float Hreco_pTHgen;
@@ -148,6 +151,7 @@
   ft->SetBranchAddress("Hreco_MTrueGen",&Hreco_MTrueGen);
   ft->SetBranchAddress("Hreco_pTTrueGenPlusNu",&Hreco_pTTrueGenPlusNu);
   ft->SetBranchAddress("Hreco_pTGenQuarks",&Hreco_pTGenQuarks);
+  ft->SetBranchAddress("Hreco_dRGenQuarks",&Hreco_dRGenQuarks);
   ft->SetBranchAddress("Hreco_MGenQuarks",&Hreco_MGenQuarks);
   ft->SetBranchAddress("Hreco_pTtgen",&Hreco_pTtgen);
   ft->SetBranchAddress("Hreco_pTHgen",&Hreco_pTHgen);
@@ -234,6 +238,9 @@
 
   TH2D *hst_closest2DPTResVsDr = new TH2D("hst_closest2DPTResVsDr","hst_closest2DPTResVsDr",nBins,-1,3,nBins,0,1.5);
 
+  TH2D *hst_mjjVsdRjj = new TH2D("hst_mjjVsdRjj","hst_mjjVsdRjj",25,-0.5,139.5,25,0,8);
+  TH2D *hst_mqqVsdRqq = new TH2D("hst_mqqVsdRqq","hst_mqqVsdRqq",25,-0.5,139.5,25,0,8);
+
 // *** Declare Counts ***
   const int nFMBins = 80;
   const int dRMax   = 2;
@@ -301,6 +308,10 @@
         }
       }
     }
+
+    // Plot 2D m_jj distributions
+    if (uniqueJetMatch) hst_mjjVsdRjj->Fill(Hreco_M_jets_match,Hreco_delR_H_j1j2);
+    if (Hreco_dRGenQuarks != -99) hst_mqqVsdRqq->Fill(Hreco_MGenQuarks,Hreco_dRGenQuarks);
 
     // Plot DelR and PTRes Distributions
     if (Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99) hst_closestJetInDelR_delR_ToQ1FromWFromH->Fill(Hreco_closestJetInDelR_delR_ToQ1FromWFromH);
@@ -385,35 +396,91 @@
   // xx: pTHVisReco
   // yy: pTHVisGen
   // zz: pTHFullGen
-  double NN = 0;
-  double xx = 0;
-  double yy = 0;
-  double zz = 0;
-  double xxxx = 0;
-  double xxyy = 0;
-  double xxzz = 0;
-  double yyyy = 0;
-  double yyzz = 0;
-  double zzzz = 0;
+  double NN;
+  double xx;
+  double yy;
+  double zz;
+  double xxxx;
+  double xxyy;
+  double xxzz;
+  double yyyy;
+  double yyzz;
+  double zzzz;
+  NN = 0;
+  xx = 0;
+  yy = 0;
+  xxxx = 0;
+  xxyy = 0;
+  yyyy = 0;
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
     if (Hreco_nQFromWFromH != 2) continue;
-    if (Hreco_pTHvis == -99 || Hreco_pTTrueGen == -99 || Hreco_pTTrueGenPlusNu == -99) continue;
+    if (Hreco_pTHvis == -99 || Hreco_pTTrueGen == -99) continue;
     NN ++;
     xx += Hreco_pTHvis;
     yy += Hreco_pTTrueGen;
-    zz += Hreco_pTTrueGenPlusNu;
     xxxx += Hreco_pTHvis*Hreco_pTHvis;
     xxyy += Hreco_pTHvis*Hreco_pTTrueGen;
-    xxzz += Hreco_pTHvis*Hreco_pTTrueGenPlusNu;
+    yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
+  }
+  double recogencorr = (NN*xxyy - xx*yy)/sqrt((NN*xxxx-xx*xx)*(NN*yyyy-yy*yy));
+  NN = 0;
+  yy = 0;
+  zz = 0;
+  yyyy = 0;
+  yyzz = 0;
+  zzzz = 0;
+  for (int i=0; i<ft->GetEntries(); i++)
+  {
+    ft->GetEntry(i);
+    if (Hreco_nQFromWFromH != 2) continue;
+    if (Hreco_pTTrueGen == -99 || Hreco_pTTrueGenPlusNu == -99) continue;
+    NN ++;
+    yy += Hreco_pTTrueGen;
+    zz += Hreco_pTTrueGenPlusNu;
     yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
     yyzz += Hreco_pTTrueGen*Hreco_pTTrueGenPlusNu;
     zzzz += Hreco_pTTrueGenPlusNu*Hreco_pTTrueGenPlusNu;
   }
-  double recogencorr = (NN*xxyy - xx*yy)/sqrt((NN*xxxx-xx*xx)*(NN*yyyy-yy*yy));
   double visfullcorr = (NN*yyzz - yy*zz)/sqrt((NN*yyyy-yy*yy)*(NN*zzzz-zz*zz));
+  NN = 0;
+  xx = 0;
+  zz = 0;
+  xxxx = 0;
+  xxzz = 0;
+  zzzz = 0;
+  for (int i=0; i<ft->GetEntries(); i++)
+  {
+    ft->GetEntry(i);
+    if (Hreco_nQFromWFromH != 2) continue;
+    if (Hreco_pTHvis == -99 || Hreco_pTTrueGenPlusNu == -99) continue;
+    NN ++;
+    xx += Hreco_pTHvis;
+    zz += Hreco_pTTrueGenPlusNu;
+    xxxx += Hreco_pTHvis*Hreco_pTHvis;
+    xxzz += Hreco_pTHvis*Hreco_pTTrueGenPlusNu;
+    zzzz += Hreco_pTTrueGenPlusNu*Hreco_pTTrueGenPlusNu;
+  }
   double totalcorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
+  NN = 0;
+  xx = 0;
+  zz = 0;
+  xxxx = 0;
+  xxzz = 0;
+  zzzz = 0;
+  for (int i=0; i<ft->GetEntries(); i++)
+  {
+    ft->GetEntry(i);
+    if (Hreco_pTHvis == -99 || Hreco_pTHgen == -99) continue;
+    NN ++;
+    xx += Hreco_pTHvis;
+    zz += Hreco_pTHgen;
+    xxxx += Hreco_pTHvis*Hreco_pTHvis;
+    xxzz += Hreco_pTHvis*Hreco_pTHgen;
+    zzzz += Hreco_pTHgen*Hreco_pTHgen;
+  }
+  double totalcorrnocuts   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
 
   // Populate 2D flavour matching histograms
   for (int i=0; i<nFMBins; i++) {
@@ -502,9 +569,10 @@
   cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
   cout << "both jets are correctly selected by the algo:            " << hst_matchRank->GetBinContent(1) << endl;
   cout << endl << "*** Correlations ***" << endl;
-  cout << "recogencorr: " << recogencorr << endl;
-  cout << "visfullcorr: " << visfullcorr << endl;
-  cout << "totalcorr:   " << totalcorr << endl;
+  cout << "recogencorr:     " << recogencorr << endl;
+  cout << "visfullcorr:     " << visfullcorr << endl;
+  cout << "totalcorr:       " << totalcorr << endl;
+  cout << "totalcorrnocuts: " << totalcorrnocuts << endl;
   cout << "\n\n";
 
   gSystem->Exec("mkdir 1DDistPlots");
@@ -948,5 +1016,20 @@
   hst_closest2DPTResVsDr->Draw("colz");
   can26->SaveAs("1DDistPlots/plot_closest2DPTResVsDr.png");
 
+  TCanvas *can27 = new TCanvas();
+  hst_mjjVsdRjj->SetStats(0);
+  hst_mjjVsdRjj->GetXaxis()->SetTitle("M_{jj}");
+  hst_mjjVsdRjj->GetYaxis()->SetTitle("dR_{jj}");
+  hst_mjjVsdRjj->SetTitle("Matched Jets");
+  hst_mjjVsdRjj->Draw("colz");
+  can27->SaveAs("1DDistPlots/plot_mjjVsdRjj.png");
+
+  TCanvas *can28 = new TCanvas();
+  hst_mqqVsdRqq->SetStats(0);
+  hst_mqqVsdRqq->GetXaxis()->SetTitle("M_{qq}");
+  hst_mqqVsdRqq->GetYaxis()->SetTitle("dR_{qq}");
+  hst_mqqVsdRqq->SetTitle("Gen Quarks");
+  hst_mqqVsdRqq->Draw("colz");
+  can28->SaveAs("1DDistPlots/plot_mqqVsdRqq.png");
 }
 

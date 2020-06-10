@@ -35,7 +35,7 @@ class HiggsRecoTTH(Module):
             "nQFromWFromH","nLFromWFromH","nQFromWFromT","nLFromWFromT",
             "nNuFromWFromH","nNuFromWFromT","nJetsInCollection",
             #kinematics of gen-level objects and matched objects
-            "pTTrueGen","MTrueGen","pTTrueGenPlusNu","pTGenQuarks","MGenQuarks",
+            "pTTrueGen","MTrueGen","pTTrueGenPlusNu","pTGenQuarks","dRGenQuarks","MGenQuarks",
             "pTtgen","pTHgen","quark1pT","quark2pT","quark1Eta","quark2Eta","quark1Flavour","quark2Flavour",
             "jet_matches_quark1_delr","jet_matches_quark2_delr",
             "jet_matches_quark1_ptres","jet_matches_quark2_ptres",
@@ -155,6 +155,7 @@ class HiggsRecoTTH(Module):
         MTrueGen         = -99
         pTTrueGenplusNu  = -99
         pTGenQuarks      = -99
+        dRGenQuarks      = -99
         MGenQuarks       = -99
         pTVis_jets_match = -99
         MVis_jets_match  = -99
@@ -422,7 +423,6 @@ class HiggsRecoTTH(Module):
                     j2.SetPtEtaPhiM(getattr(jetsNoTopNoB[_j2],'pt%s'%self.systsJEC[var]),j2.Eta(), j2.Phi(), j2.M())
                     W = j1+j2
                     mW = W.M()
-                    if mW<self.cuts_mW_had[0] or mW>self.cuts_mW_had[1]: continue
                     Wconstr = ROOT.TLorentzVector()
                     Wconstr.SetPtEtaPhiM(W.Pt(),W.Eta(),W.Phi(),80.4)
                     Hvisconstr = lep+Wconstr
@@ -434,9 +434,10 @@ class HiggsRecoTTH(Module):
                     for neutrino in NuFromWFromH:
                         VisPlusNu = Hvisconstr+neutrino.p4() 
                         pTVisPlusNu = VisPlusNu.Pt()
-                    if mHvisconstr<self.cuts_mH_vis[0] or mHvisconstr>self.cuts_mH_vis[1]: continue
                     mindR = min(lep.DeltaR(j1),lep.DeltaR(j2))
                     delR_H_j1j2 = j1.DeltaR(j2)
+                    if (mW<self.cuts_mW_had[0] or mW>self.cuts_mW_had[1]): continue
+                    if mHvisconstr<self.cuts_mH_vis[0] or mHvisconstr>self.cuts_mH_vis[1]: continue
                     candidateMinimizers.append((mindR,abs(mHvisconstr-125.0),abs(mW-80.4),delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr))
                     candidateBranchValues.append((mindR,mHvisconstr,mW,delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr))
 
@@ -464,6 +465,7 @@ class HiggsRecoTTH(Module):
                     trueGenQuarkSum = q1.p4()+q2.p4()
                     MGenQuarks = trueGenQuarkSum.M();
                     pTGenQuarks = trueGenQuarkSum.Pt();
+                    dRGenQuarks = q1.p4().DeltaR(q2.p4());
                     #TODO if (len(LFromWFromH)>1):
                         #print("WARNING: we have not one but ",len(LFromWFromH), "leptons from W from H. I am in the if best")
                     #TODO should I add a cut conditon here?
@@ -679,6 +681,7 @@ class HiggsRecoTTH(Module):
             ret["Hreco_MTrueGen%s"                                             %self.systsJEC[var]] = MTrueGen
             ret["Hreco_pTTrueGenPlusNu%s"                                      %self.systsJEC[var]] = pTTrueGenplusNu
             ret["Hreco_pTGenQuarks%s"                                          %self.systsJEC[var]] = pTGenQuarks
+            ret["Hreco_dRGenQuarks%s"                                          %self.systsJEC[var]] = dRGenQuarks
             ret["Hreco_MGenQuarks%s"                                           %self.systsJEC[var]] = MGenQuarks
             ret["Hreco_pTtgen%s"                                               %self.systsJEC[var]] = pTtgen
             ret["Hreco_pTHgen%s"                                               %self.systsJEC[var]] = pTHgen
