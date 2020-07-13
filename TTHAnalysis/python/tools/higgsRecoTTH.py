@@ -20,7 +20,9 @@ class HiggsRecoTTH(Module):
             "minDRlj","delR_H_j1j2","visHmass","Wmass","lepIdx","j1Idx","j2Idx",
             "pTVisPlusNu","pTHvis","pTVis_jets_match","MVis_jets_match","M_jets_match",
             "nmatchedleptons","nmatchedpartons","nmismatchedtoptaggedjets","delR_H_j1l_reco",
-            "delR_H_j2l_reco",
+            "delR_H_j2l_reco","maxdR","mindR","maxdRW","mindRW","PtTop_recohtt","MTop_recohtt","PtWFromTop_recohtt","MWFromTop_recohtt","WFromTop_rightlep_delr","WFromTop_wronglep_delr",
+            "minDRlj_correct","delR_H_j1j2_correct","visHmass_correct","Wmass_correct","lepIdx_correct","j1Idx_correct","j2Idx_correct",
+            "pTVisPlusNu_correct","pTHvis_correct","delR_H_j1l_reco_correct","delR_H_j2l_reco_correct","maxdR_correct","mindR_correct","maxdRW_correct","mindRW_correct",
             #delR and closest jet vars
             "delR_H_partons","delR_H_q1l","delR_H_q2l",
             "closestJetInDelR_pt_ToQ1FromWFromH","closestJetInDelR_pt_ToQ2FromWFromH",
@@ -32,14 +34,17 @@ class HiggsRecoTTH(Module):
             "closestJetInPTRes_delR_ToQ1FromWFromH","closestJetInPTRes_delR_ToQ2FromWFromH",
             "closestJetInPTRes_flavour_ToQ1FromWFromH","closestJetInPTRes_flavour_ToQ2FromWFromH",
             #lists from gen loop
-            "nQFromWFromH","nLFromWFromH","nQFromWFromT","nLFromWFromT",
-            "nNuFromWFromH","nNuFromWFromT","nJetsInCollection",
+            "nWFromH","nQFromWFromH","nLFromWFromH","nQFromWFromT","nLFromWFromT",
+            "nNuFromWFromH","nNuFromWFromT","nZFromH","nQFromZFromH","nLFromZFromH","nNuFromZFromH",
+            "nTauFromH","nPiFromTauFromH","nLFromTauFromH","nNuFromTauFromH","nTNuFromTauFromH","nKaFromTauFromH",
+            "nLFromTauFromWFromH","nhFromTauFromWFromH","nTauFromWFromH","nFO","nLeptonicTops","nHadTop","nJetsInCollection",
             #kinematics of gen-level objects and matched objects
             "pTTrueGen","MTrueGen","pTTrueGenPlusNu","pTGenQuarks","dRGenQuarks","MGenQuarks",
             "pTtgen","pTHgen","quark1pT","quark2pT","quark1Eta","quark2Eta","quark1Flavour","quark2Flavour",
             "jet_matches_quark1_delr","jet_matches_quark2_delr",
             "jet_matches_quark1_ptres","jet_matches_quark2_ptres",
-            "matchRank"]])
+            "bestRank","matchRank","mHRightLepton","mHWrongLepton",
+            "HadTopPt","HadTopM","WFromHadTopPt","WFromHadTopM","WFromHiggsPt","WFromHiggsM"]])
 
         for mylep in [0, 1]:
             for var in self.systsJEC: self.branches.extend(["Hreco_%s%s"%(x,self.systsJEC[var]) for x in [
@@ -75,6 +80,11 @@ class HiggsRecoTTH(Module):
             btagvetoval = HiggsRecoTTHbtagwps["DeepFlav_%d_%s"%(year,self.btagDeepCSVveto)][1]
         else :
             btagvetoval = self.btagDeepCSVveto
+#        btagvetoval = HiggsRecoTTHbtagwps["DeepFlav_%d_%s"%(year,'T')][1]
+#        print ("btagvetoval: " + str(btagvetoval))
+        # L = 0.0614
+        # M = 0.3093
+        # T = 0.7221
         statusFlagsMap = {
           # Comments taken from:
           # DataFormats/HepMCCandidate/interface/GenParticle.h
@@ -134,20 +144,35 @@ class HiggsRecoTTH(Module):
         LFromW=[]
         tauFromW=[]
         WFromH=[]
+        ZFromH=[]
+        TauFromH=[]
+        PiFromTauFromH=[]
+        LFromTauFromH=[]
+        NuFromTauFromH=[]
+        TNuFromTauFromH=[]
+        KaFromTauFromH=[]
+        LFromTauFromWFromH=[]
+        hFromTauFromWFromH=[]
         WFromT=[]
         QFromWFromH  = [] 
         LFromWFromH  = [] 
+        QFromZFromH  = [] 
+        LFromZFromH  = [] 
         QFromWFromT  = [] 
         LFromWFromT  = [] 
         NuFromWFromH = [] 
         NuFromWFromT = [] 
+        TauFromWFromH = [] 
+        NuFromZFromH = [] 
         genlep=[]
         #closestJetInDelRToQFromWFromH=[]
         tfromhardprocess=[]
+        leptonictops=[]
         nmatchedpartons           = -99
         nbothmatchedpartons       = -99 
         nmismatchedtoptaggedjets  = -99
         nmatchedleptons           = -99
+        pTH              = -99
         pTHgen           = -99
         pTtgen           = -99
         pTVisPlusNu      = -99
@@ -181,12 +206,14 @@ class HiggsRecoTTH(Module):
         delR_H_q2l          = -99
         delR_H_j1l_reco     = -99
         delR_H_j2l_reco     = -99
+        delpT_recovis_genvis = -99
         
         # higgs
         for part in genpar:
             if part.pdgId == 25 and part.statusFlags &(1 << statusFlagsMap['isHardProcess']):
                 Higgses.append(part)
                 #TODO: consider the pt of the stxs higgs
+                pTH = part.p4()
                 pTHgen = part.p4().Pt() 
         #if len(Higgses)>1:
             #sys.exit("error: more than one higgs!")
@@ -197,107 +224,252 @@ class HiggsRecoTTH(Module):
                  pTtgen = part.p4().Pt()
         #if len(tfromhardprocess)!=2:
             #sys.exit("error: not only two hard tops!")
-        
-        # W from higgs
-        for part in genpar:
-            if (abs(part.pdgId) == 24 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
-                    and part.genPartIdxMother >= 0 and  genpar[part.genPartIdxMother].pdgId == 25 ):
-                if self.debug: print "it is a hard W coming from a Higgs"
-                WFromH.append(part)
-        
-        # W from tops 
-        for part in genpar:
-            if (abs(part.pdgId) == 24 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
-                    and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 6):
-                if self.debug: print "it is a hard W coming from a top"
-                WFromT.append(part)
-        #if len(tfromhardprocess) == 2 and len(WFromT) != 2:
-            #sys.exit("error: you don't have exactly two W's from the two hard tops!")
-        
-        # W decays to quarks
-        for part in genpar:
-            if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24): 
-                if self.debug: print "it is a quark coming from a W"
-                QFromW.append(part)
-        
-        # gen leptons
-        for part in genpar:
-            if (abs(part.pdgId) in [11,13] and part.status == 1 and part.statusFlags &(1 << statusFlagsMap['isLastCopy']) and not part.statusFlags &(1 << statusFlagsMap['isDirectHadronDecayProduct'])):
-                if part.statusFlags &(1 << statusFlagsMap['isPrompt']) or part.statusFlags &(1 << statusFlagsMap['isDirectPromptTauDecayProduct']):
-                    #print (genpar[part.genPartIdxMother].pdgId)
-                    if self.debug: print "it is a prompt lepton"
-                    genlep.append(part)
-        
-        # gen leptons from W
-        for part in genpar:
-            if (abs(part.pdgId) in [11,13] and part.status == 1 and part.statusFlags &(1 << statusFlagsMap['isLastCopy']) and not part.statusFlags &(1 << statusFlagsMap['isDirectHadronDecayProduct'])):
-                if part.statusFlags &(1 << statusFlagsMap['isPrompt']) or part.statusFlags &(1 << statusFlagsMap['isDirectPromptTauDecayProduct']):
-                    if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
+
+        if False:        
+            # W from higgs
+            for part in genpar:
+                if (abs(part.pdgId) == 24 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
+                        and part.genPartIdxMother >= 0 and  genpar[part.genPartIdxMother].pdgId == 25 ):
+                    if self.debug: print "it is a hard W coming from a Higgs"
+                    WFromH.append(part)
+        if False:
+            # Z from higgs
+            for part in genpar:
+                if (abs(part.pdgId) == 23 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
+                        and part.genPartIdxMother >= 0 and  genpar[part.genPartIdxMother].pdgId == 25 ):
+                    if self.debug: print "it is a hard Z coming from a Higgs"
+                    ZFromH.append(part)
+        if False:
+            # Tau from higgs
+            for part in genpar:
+                if (abs(part.pdgId) == 15 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
+                        and part.genPartIdxMother >= 0 and  genpar[part.genPartIdxMother].pdgId == 25 ):
+                    if self.debug: print "it is a hard Tau coming from a Higgs"
+                    TauFromH.append(part)
+        if True:    
+            # W from tops 
+            for part in genpar:
+                if (abs(part.pdgId) == 24 and part.statusFlags &(1 << statusFlagsMap['isHardProcess'])
+                        and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 6):
+                    if self.debug: print "it is a hard W coming from a top"
+                    WFromT.append(part)
+            #if len(tfromhardprocess) == 2 and len(WFromT) != 2:
+                #sys.exit("error: you don't have exactly two W's from the two hard tops!")
+        if False:    
+            # W decays to quarks
+            for part in genpar:
+                if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24): 
+                    if self.debug: print "it is a quark coming from a W"
+                    QFromW.append(part)
+        if False:    
+            # gen leptons
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.status == 1 and part.statusFlags &(1 << statusFlagsMap['isLastCopy']) and not part.statusFlags &(1 << statusFlagsMap['isDirectHadronDecayProduct'])):
+                    if part.statusFlags &(1 << statusFlagsMap['isPrompt']) or part.statusFlags &(1 << statusFlagsMap['isDirectPromptTauDecayProduct']):
+                        #print (genpar[part.genPartIdxMother].pdgId)
                         if self.debug: print "it is a prompt lepton"
-                        LFromW.append(part)
+                        genlep.append(part)
+        if False:    
+            # gen leptons from W
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.status == 1 and part.statusFlags &(1 << statusFlagsMap['isLastCopy']) and not part.statusFlags &(1 << statusFlagsMap['isDirectHadronDecayProduct'])):
+                    if part.statusFlags &(1 << statusFlagsMap['isPrompt']) or part.statusFlags &(1 << statusFlagsMap['isDirectPromptTauDecayProduct']):
+                        if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
+                            if self.debug: print "it is a prompt lepton"
+                            LFromW.append(part)
+    
+        if True:    
+            # neutrinos from W from H
+            for part in genpar:
+                if abs(part.pdgId) in [12, 14]:
+                    if self.debug: print "it is a neutrino"
+                    #print ("mother of neutrino is " + str(genpar[part.genPartIdxMother].pdgId))
+                    #print ("grand mother is " + str(abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId)))
+                    if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
+                        if self.debug: print "the mother of this neutrino is W+ or W-"
+                        if abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 25:
+                            if self.debug: print "the mother of this W is a Higgs"
+                            NuFromWFromH.append(part)
 
-        
-        # neutrinos 
-        for part in genpar:
-            if abs(part.pdgId) in [12, 14]:
-                if self.debug: print "it is a neutrino"
-                #print ("mother of neutrino is " + str(genpar[part.genPartIdxMother].pdgId))
-                #print ("grand mother is " + str(abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId)))
-                if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
-                    if self.debug: print "the mother of this neutrino is W+ or W-"
-                    if abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 25:
-                        if self.debug: print "the mother of this W is a Higgs"
-                        NuFromWFromH.append(part)
+        if False:
+            # neutrinos from Z from H
+            for part in genpar:
+                if abs(part.pdgId) in [12, 14]:
+                    if self.debug: print "it is a neutrino"
+                    #print ("mother of neutrino is " + str(genpar[part.genPartIdxMother].pdgId))
+                    #print ("grand mother is " + str(abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId)))
+                    if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 23:
+                        if self.debug: print "the mother of this neutrino is Z"
+                        if abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 25:
+                            if self.debug: print "the mother of this Z is a Higgs"
+                            NuFromZFromH.append(part)
 
-        for part in genpar:
-            if abs(part.pdgId) in [12, 14]:
-                if self.debug: print "it is a neutrino"
-                if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
-                    if self.debug: print "the mother of this neutrino is W+ or W-"
-                    if abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 6:
-                        if self.debug: print "the mother of this W is a top"
-                        NuFromWFromT.append(part)
-        
-        # quarks from W from H
-        for part in genpar:
-            if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24
-                     and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                if self.debug: print "it is a quark coming from a hard W"
-                if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25
-                        and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                    if self.debug: print "the mother of this hard W is a hard Higgs"
-                    QFromWFromH.append(part)
+        if False:    
+            for part in genpar:
+                if abs(part.pdgId) in [12, 14]:
+                    if self.debug: print "it is a neutrino"
+                    if part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24: 
+                        if self.debug: print "the mother of this neutrino is W+ or W-"
+                        if abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 6:
+                            if self.debug: print "the mother of this W is a top"
+                            NuFromWFromT.append(part)
 
-        # quarks from W from T 
-        for part in genpar:
-            if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24 
-                     and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                if self.debug: print "it is a quark coming from a hard W"
-                if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 6
-                        and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                    if self.debug: print "the mother of this hard W is a hard top"
-                    QFromWFromT.append(part)
+        if True:            
+            # quarks from W from H
+            for part in genpar:
+                if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24
+                         and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                    if self.debug: print "it is a quark coming from a hard W"
+                    if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25
+                            and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                        if self.debug: print "the mother of this hard W is a hard Higgs"
+                        QFromWFromH.append(part)
 
-        # leptons (excl. taus) from W from H 
-        for part in genpar:
-            if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24 
-                     and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                if self.debug: print "it is a lepton coming from a hard W"
-                if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25 
-                        and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                    if self.debug: print "the mother of this hard W is a hard Higgs"
-                    LFromWFromH.append(part)
-        
-        # leptons (excl. taus) from W from top
-        for part in genpar:
-            if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24
-                     and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                if self.debug: print "it is a lepton coming from a hard W"
-                if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 6 
-                        and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
-                    if self.debug: print "the mother of this W is a hard top"
-                    LFromWFromT.append(part)
-        
+        if False:
+            # quarks from Z from H
+            for part in genpar:
+                if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 23
+                         and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                    if self.debug: print "it is a quark coming from a hard Z"
+                    if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25
+                            and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                        if self.debug: print "the mother of this hard Z is a hard Higgs"
+                        QFromZFromH.append(part)
+
+        if False:
+            # quarks from W from T 
+            for part in genpar:
+                if (abs(part.pdgId) in [1,2,3,4,5,6] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24 
+                         and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                    if self.debug: print "it is a quark coming from a hard W"
+                    if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and abs(genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId) == 6
+                            and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                        if self.debug: print "the mother of this hard W is a hard top"
+                        QFromWFromT.append(part)
+
+        if True:
+            # leptons (excl. taus) from W from H 
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24 
+                         and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                    if self.debug: print "it is a lepton coming from a hard W"
+                    if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25 
+                            and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                        if self.debug: print "the mother of this hard W is a hard Higgs"
+                        LFromWFromH.append(part)
+
+        if True:
+            # taus from W from H
+            for part in genpar:
+                if (abs(part.pdgId) in [15] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24):
+                    if self.debug: print "it is a tau coming from a hard W"
+                    if (genpar[part.genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25):
+                        if self.debug: print "the mother of this hard W is a hard Higgs"
+                        TauFromWFromH.append(part)
+
+        if False:
+            # leptons (excl. taus) from Z from H
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 23
+                         and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                    if self.debug: print "it is a lepton coming from a hard Z"
+                    if (genpar[genpar[part.genPartIdxMother].genPartIdxMother].genPartIdxMother >= 0 and genpar[genpar[part.genPartIdxMother].genPartIdxMother].pdgId == 25
+                            and genpar[part.genPartIdxMother].statusFlags &(1 << statusFlagsMap['isHardProcess'])):
+                        if self.debug: print "the mother of this hard Z is a hard Higgs"
+                        LFromZFromH.append(part)
+
+        if True:
+            # leptons (excl. taus) from W from top
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 24):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 24):
+                        mpart = genpar[mpart.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 6):
+                        mpart = genpar[mpart.genPartIdxMother]
+                    if abs(mpart.pdgId) == 6:
+                        LFromWFromT.append(part)
+                        leptonictops.append(mpart)
+
+        if False:
+            # pions from Tau from H
+            for part in genpar:
+                if (abs(part.pdgId) in [111,211] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15):
+                        mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 25):
+                        PiFromTauFromH.append(part)
+
+        if False:
+            # leptons from Tau from H
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 25):
+                        LFromTauFromH.append(part)
+
+        if False:
+            # m/e neutrinos from Tau from H
+            for part in genpar:
+                if (abs(part.pdgId) in [12,14] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 25):
+                        NuFromTauFromH.append(part)
+
+        if False:
+            # tau neutrinos from Tau from H
+            for part in genpar:
+                if (abs(part.pdgId) in [16] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 25):
+                        TNuFromTauFromH.append(part)
+
+        if False:
+            # kaons from Tau from H
+            for part in genpar:
+                if (abs(part.pdgId) in [311,321] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 25):
+                        KaFromTauFromH.append(part)
+
+        if True:
+            # leptons from tau from W from H
+            for part in genpar:
+                if (abs(part.pdgId) in [11,13] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 24
+                            and genpar[mpart.genPartIdxMother].genPartIdxMother >= 0
+                            and abs(genpar[genpar[mpart.genPartIdxMother].genPartIdxMother].pdgId) == 25):
+                        LFromTauFromWFromH.append(part)
+
+        if True:
+            # pions / kaons from tau from W from H
+            for part in genpar:
+                if (abs(part.pdgId) in [111,211,311,321] and part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+                    mpart = genpar[part.genPartIdxMother]
+                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 24
+                            and genpar[mpart.genPartIdxMother].genPartIdxMother >= 0
+                            and abs(genpar[genpar[mpart.genPartIdxMother].genPartIdxMother].pdgId) == 25):
+                        hFromTauFromWFromH.append(part)
+
+#        if True:
+#            # pions / kaons from tau from W from H
+#            for part in genpar:
+#                if (part.genPartIdxMother >= 0 and abs(genpar[part.genPartIdxMother].pdgId) == 15):
+#                    mpart = genpar[part.genPartIdxMother]
+#                    while (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 15): mpart = genpar[mpart.genPartIdxMother]
+#                    if (mpart.genPartIdxMother >= 0 and abs(genpar[mpart.genPartIdxMother].pdgId) == 24
+#                            and genpar[mpart.genPartIdxMother].genPartIdxMother >= 0
+#                            and abs(genpar[genpar[mpart.genPartIdxMother].genPartIdxMother].pdgId) == 25):
+#                        print("pdgId: " + str(part.pdgId))
+
         #TODO revise this sanity check  
         #if len(LFromWFromH) + len(LFromWFromT) != len(LFromW):
             #sys.exit("something is going wrong with leptons")
@@ -349,6 +521,28 @@ class HiggsRecoTTH(Module):
              #   + " \n taus from W's        = " + str(len(tauFromW))
                 + " \n <<")
         '''
+        HadTopPt = -99
+        HadTopM  = -99
+        WFromHadTopPt = -99
+        WFromHadTopM  = -99
+        WFromHiggsPt  = -99
+        WFromHiggsM   = -99
+        nHadTop  = 0
+        for top in tfromhardprocess:
+            if top not in leptonictops:
+                HadTopPt = top.p4().Pt()
+                HadTopM  = top.p4().M()
+                nHadTop = nHadTop + 1
+        for w in WFromT:
+            if genpar[w.genPartIdxMother] not in leptonictops:
+                WFromHadTopPt = w.p4().Pt()
+                WFromHadTopM  = w.p4().M()
+        for q in QFromWFromH:
+            WFromHiggsPt = genpar[q.genPartIdxMother].p4().Pt()
+            WFromHiggsM = genpar[q.genPartIdxMother].p4().M()
+#        print("nHadTop: "+str(nHadTop))
+#        print("nLepTop: "+str(len(leptonictops)))
+
         #for jet in genjet:
             #if not jet.partonFlavour == 5 and not jet.partonFlavour == -5: that excludes b-jets but it is not necessary
             #if jet.p4().Pt() > 30 and abs(jet.p4().Eta()) < 2.5:  # bit extreme cuts, I think supposed to be 24 and 2.4
@@ -401,7 +595,122 @@ class HiggsRecoTTH(Module):
             jetsNoTopNoBMorePhis = [j.phi for j in jetsNoTopNoBMore]
 
 ############### Reconstruction Algorithm ###############
+#            jBscore = -1000
+#            _jBscore = -1
+#            bjlist = []
+#            for _j,j in [(ix,x.p4()) for ix,x in enumerate(jetsNoTopNoB)]:
+#                if jetsNoTopNoB[_j].btagDeepB > jBscore:
+#                    jBscore = jetsNoTopNoB[_j].btagDeepB
+#                    _jBscore = _j
+#                if jetsNoTopNoB[_j].btagDeepB > 0.7221:
+#                    bjlist.append(_j)
+#            if len(bjlist)==0: bjlist.append(_jBscore)
+#            delrlist = []
+#            for _lep,lep in [(ix,x.p4()) for ix,x in enumerate(lepsFO)]:
+#                closestjetMT = 1000
+#                for _j in bjlist:
+#                    if abs((jetsNoTopNoB[_j].p4()+lep).M()-173.0) < closestjetMT and (jetsNoTopNoB[_j].p4()+lep).M() < 175.0 and (jetsNoTopNoB[_j].p4()+lep).M() > 100.0:
+#                        closestjetMT = abs((jetsNoTopNoB[_j].p4()+lep).M()-173.0)
+#                delrlist.append(closestjetMT)
+#                closestjetdelr = 99
+#                for _j in bjlist:
+#                    if jetsNoTopNoB[_j].p4().DeltaR(lep) < closestjetdelr: closestjetdelr = jetsNoTopNoB[_j].p4().DeltaR(lep)
+#                if closestjetdelr != 99: delrlist.append(closestjetdelr)
+
+#            ilist = [i[0] for i in sorted(enumerate(delrlist), key=lambda x:x[1])]
+#            notop = True
+#            for d in delrlist:
+#                if d != 1000: notop=False
+#            if notop :
+#                goodlepidx = -1
+#            else:
+#                goodlepidx = ilist[len(ilist)-1]
+            goodlepidx = 1
+#            mindr0 = 1000
+#            mindr1 = 1000
+#            for _j,j in [(ix,x.p4()) for ix,x in enumerate(jetsNoTopNoB)]:
+#                if jetsNoTopNoB[_j].btagDeepB > 0.0614 : continue
+#                if lepsFO[0].p4().DeltaR(j) < mindr0: mindr0 = lepsFO[0].p4().DeltaR(j)
+#                if lepsFO[1].p4().DeltaR(j) < mindr1: mindr1 = lepsFO[1].p4().DeltaR(j)
+#            if mindr0 < mindr1 and mindr0 < 2.0: goodlepidx=0
+#            for _j in bjlist:
+#                if (lepsFO[1].p4()+jetsNoTopNoB[_j].p4()).M() < 175 and (lepsFO[1].p4()+jetsNoTopNoB[_j].p4()).M() > 80 and (lepsFO[1].p4().DeltaR(jetsNoTopNoB[_j].p4())) < 1.5:
+#                    goodlepidx = 0
+#            print("goodlepidx: "+str(goodlepidx))
+            rightlepnow = -1
+            if (len(QFromWFromH)==2 and len(LFromWFromH)==1):
+                ilist=[i[0] for i in sorted(enumerate(lepsFO),key=lambda x:x[1].p4().DeltaR(LFromWFromH[0].p4()))]
+                rightlepnow = ilist[0]
+
+            mHRightLepton = -99
+            mHWrongLepton = -99
+            if len(QFromWFromH)==2 and len(LFromWFromH)==1 and len(lepsFO)==2:
+                wronglepnow = 0 if rightlepnow == 1 else 1
+                mHRightLepton = (lepsFO[rightlepnow].p4()+QFromWFromH[0].p4()+QFromWFromH[1].p4()).M()
+                mHWrongLepton = (lepsFO[wronglepnow].p4()+QFromWFromH[0].p4()+QFromWFromH[1].p4()).M()
+
+#            print("New Event")
+            closesttriptotop = 9999
+            PtTop_recohtt = -99
+            MTop_recohtt = -99
+            PtWFromTop_recohtt = -99
+            MWFromTop_recohtt = -99
+            WFromTop_rightlep_delr = -99;
+            WFromTop_wronglep_delr = -99;
+
+            score = getattr(event,"BDThttTT_eventReco_mvaValue%s"%self.systsJEC[var])
+#            print(score)
+            j1top = getattr(event,"BDThttTT_eventReco_iJetSel1%s"%self.systsJEC[var])
+            j2top = getattr(event,"BDThttTT_eventReco_iJetSel2%s"%self.systsJEC[var])
+            j3top = getattr(event,"BDThttTT_eventReco_iJetSel3%s"%self.systsJEC[var])
+            j1 = jets[int(j1top)]
+            j2 = jets[int(j2top)]
+            j3 = jets[int(j3top)]
+#            print("Js: "+str(jets[int(j1top)].btagDeepB)+"  "+str(jets[int(j2top)].btagDeepB)+"  "+str(jets[int(j3top)].btagDeepB))
+            if score>self.cut_BDT_rTT_score:
+                bscores = [jets[int(j1top)].btagDeepB, jets[int(j2top)].btagDeepB, jets[int(j3top)].btagDeepB]
+                bindex = bscores.index(max(bscores))
+                PtTop_recohtt = (j1.p4()+j2.p4()+j3.p4()).Pt()
+                MTop_recohtt = (j1.p4()+j2.p4()+j3.p4()).M()
+                PtWFromTop_recohtt = (j1.p4()*(bindex!=0)+j2.p4()*(bindex!=1)+j3.p4()*(bindex!=2)).Pt()
+                MWFromTop_recohtt = (j1.p4()*(bindex!=0)+j2.p4()*(bindex!=1)+j3.p4()*(bindex!=2)).M()
+                if len(QFromWFromH)==2 and len(LFromWFromH)==1 and len(lepsFO)==2:
+                    WFromTop_rightlep_delr = (j1.p4()+j2.p4()+j3.p4()).DeltaR(lepsFO[rightlepnow].p4())
+                    WFromTop_wronglep_delr = (j1.p4()+j2.p4()+j3.p4()).DeltaR(lepsFO[wronglepnow].p4())
+                
+                
+#                print(str(PtTop_recohtt)+"  "+str(MTop_recohtt)+"  "+str(PtWFromTop_recohtt)+"  "+str(MWFromTop_recohtt))
+#            print(WFromHadTopPt)
+#            print(WFromHadTopM)
+#            print(WFromHiggsPt)
+#            print(WFromHiggsM)
+#            print(PtWFromTop_recohtt)
+#            print(MWFromTop_recohtt)
+#            print("")
+#            for _j1,_j2,_j3,j1,j2,j3 in [(jetsNoTopNoB.index(x1),jetsNoTopNoB.index(x2),jetsNoTopNoB.index(x3),x1.p4(),x2.p4(),x3.p4()) for x1,x2,x3 in itertools.combinations(jetsNoTopNoB,3)]:
+#                if (len(QFromWFromH)!=2 or len(LFromWFromH)!=1): break
+#                a1 = jetsNoTopNoB[_j1].btagDeepB > 0.7221 and jetsNoTopNoB[_j2].btagDeepB < 0.3093 and jetsNoTopNoB[_j3].btagDeepB < 0.3093
+#                a2 = jetsNoTopNoB[_j1].btagDeepB < 0.3093 and jetsNoTopNoB[_j2].btagDeepB > 0.7221 and jetsNoTopNoB[_j3].btagDeepB < 0.3093
+#                a3 = jetsNoTopNoB[_j1].btagDeepB < 0.3093 and jetsNoTopNoB[_j2].btagDeepB < 0.3093 and jetsNoTopNoB[_j3].btagDeepB > 0.7221
+#                if a1 or a2 or a3:
+#                    closesttriptotop = abs((j1+j2+j3).M()-173)
+#                    PtTop_reco = (j1+j2+j3).Pt()
+#                    MTop_reco = (j1+j2+j3).M()
+#                    goodlepidx = 1 if (j1+j2+j3).DeltaR(lepsFO[0].p4()) < (j1+j2+j3).DeltaR(lepsFO[1].p4()) else 0
+#                    print("J1BScore: "+str(jetsNoTopNoB[_j1].btagDeepB)+"  J1Eta: "+str(j1.Eta()))
+#                    print("J2BScore: "+str(jetsNoTopNoB[_j2].btagDeepB)+"  J1Eta: "+str(j2.Eta()))
+#                    print("J3BScore: "+str(jetsNoTopNoB[_j3].btagDeepB)+"  J1Eta: "+str(j3.Eta()))
+#                    print("M():      "+str((j1+j2+j3).M()))
+#                    print("")
+                
+#                print("RightM: "+str(mHRightLepton)+"  WrongM: "+str(mHWrongLepton))
+
             for _lep,lep in [(ix,x.p4()) for ix,x in enumerate(lepsFO)]:
+#                if (len(QFromWFromH)!=2 or len(LFromWFromH)!=1): break
+#                break
+#                for _j,j in [(ix,x.p4()) for ix,x in enumerate(jetsNoTopNoB)]:
+#                    print("Lepton Index: "+str(_lep)+"  B Score: "+str(jetsNoTopNoB[_j].btagDeepB)+"  M(l,j): "+str((lep+j).M())+"  DelR(l,j): "+str(lep.DeltaR(j))+"  pT(lep): " + \
+#                    str(lep.Pt())+"  pT(jet): "+str(j.Pt()))
                 lep.SetPtEtaPhiM(getattr(lepsFO[_lep],'conePt'),lep.Eta(), lep.Phi(), lep.M())
                 iClosestFatJetToLep = -99
                 minDeltaRfatJetLep = 999
@@ -417,7 +726,6 @@ class HiggsRecoTTH(Module):
                         closestFat_lepIsFromH = 1 if (lep.DeltaR(LFromWFromH[0].p4()) < 0.1) else 0
                     # Must probably add some ID (FatJet_jetId)
                     closestFatJetToLeptonVars.append([closestFat_deltaR, closestFat_lepIsFromH, fj.pt, fj.eta, fj.phi, fj.mass, fj.msoftdrop, fj.tau1, fj.tau2, fj.tau3, fj.tau4])
-
                 for _j1,_j2,j1,j2 in [(jetsNoTopNoB.index(x1),jetsNoTopNoB.index(x2),x1.p4(),x2.p4()) for x1,x2 in itertools.combinations(jetsNoTopNoB,2)]:
                     j1.SetPtEtaPhiM(getattr(jetsNoTopNoB[_j1],'pt%s'%self.systsJEC[var]),j1.Eta(), j1.Phi(), j1.M())
                     j2.SetPtEtaPhiM(getattr(jetsNoTopNoB[_j2],'pt%s'%self.systsJEC[var]),j2.Eta(), j2.Phi(), j2.M())
@@ -425,6 +733,7 @@ class HiggsRecoTTH(Module):
                     mW = W.M()
                     Wconstr = ROOT.TLorentzVector()
                     Wconstr.SetPtEtaPhiM(W.Pt(),W.Eta(),W.Phi(),80.4)
+                    Wconstr = W
                     Hvisconstr = lep+Wconstr
                     mHvisconstr = Hvisconstr.M()
                     pTHvisconstr = Hvisconstr.Pt()
@@ -434,12 +743,40 @@ class HiggsRecoTTH(Module):
                     for neutrino in NuFromWFromH:
                         VisPlusNu = Hvisconstr+neutrino.p4() 
                         pTVisPlusNu = VisPlusNu.Pt()
-                    mindR = min(lep.DeltaR(j1),lep.DeltaR(j2))
+                        MVisPlusNu = VisPlusNu.M()
+                    if len(NuFromWFromH) == 0 : 
+                        pTVisPlusNu = pTHvisconstr
+                        MVisPlusNu = mHvisconstr
+                    cj = j1 if lep.DeltaR(j1) < lep.DeltaR(j2) else j2
+                    fj = j2 if lep.DeltaR(j1) < lep.DeltaR(j2) else j1
+                    _cj = _j1 if lep.DeltaR(j1) < lep.DeltaR(j2) else _j2
+                    _fj = _j2 if lep.DeltaR(j1) < lep.DeltaR(j2) else _j1
+                    mindR = lep.DeltaR(cj)
+                    maxdR = lep.DeltaR(fj)
+                    mindRW = W.DeltaR(cj)
+                    maxdRW = W.DeltaR(fj)
+                    cjBScore = jetsNoTopNoB[_cj].btagDeepB
                     delR_H_j1j2 = j1.DeltaR(j2)
-                    if (mW<self.cuts_mW_had[0] or mW>self.cuts_mW_had[1]): continue
-                    if mHvisconstr<self.cuts_mH_vis[0] or mHvisconstr>self.cuts_mH_vis[1]: continue
-                    candidateMinimizers.append((mindR,abs(mHvisconstr-125.0),abs(mW-80.4),delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr))
-                    candidateBranchValues.append((mindR,mHvisconstr,mW,delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr))
+                    delpT_recovis_genvis = abs((pTVisPlusNu-pTHgen)/pTHgen)
+                    delR_j2W = abs((pTVisPlusNu-pTHgen)/pTHgen)
+                    inWindow = 0 if mW > 20 and mW < 130 else 1
+                    mindlW = W.DeltaR(lep)
+                    rightlep = 0 if len(LFromWFromH)==1 and len(QFromWFromH)==2 and LFromWFromH[0].p4().DeltaR(lep) < 0.25 else 1
+#                    goodchoicelep = 0 if _lep==goodlepidx else 1
+                    goodchoicelep = 0 if _lep==rightlepnow else 1
+                    hasnomedb = 0 if jetsNoTopNoB[_cj].btagDeepB < 0.0614 and jetsNoTopNoB[_fj].btagDeepB < 0.0614 else 1
+#                    rightlep = 0
+#                    delR_j2W = abs((j1.Pt()-j2.Pt())/(j1.Pt()+j2.Pt()))
+#                    delR_j2W = delpT_recovis_genvis
+#                    delR_j2W = abs(MVisPlusNu-125.0)
+#                    delR_j2W = min(abs(mW-80.4),abs(mW-40.2))
+#                    delR_j2W = j1.DeltaR(j2)
+#                    delR_j2W = jetsNoTopNoB[_j2].btagDeepB
+#                    delR_j2W = max(lep.DeltaR(j1),lep.DeltaR(j2))
+#                    if (mW<self.cuts_mW_had[0] or mW>self.cuts_mW_had[1]): continue
+#                    if mHvisconstr<self.cuts_mH_vis[0] or mHvisconstr>self.cuts_mH_vis[1]: continue
+                    candidateMinimizers.append((goodchoicelep,mindR,abs(mHvisconstr-125.0),abs(mW-80.4),delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr,delpT_recovis_genvis))
+                    candidateBranchValues.append((mindR,mHvisconstr,mW,delR_H_j1j2,_lep,_j1,_j2,pTVisPlusNu,pTHvisconstr,delpT_recovis_genvis,maxdR,mindR,maxdRW,rightlep,cjBScore))
 
             nmismatchedtoptaggedjets = 0
             if self.useTopTagger:
@@ -449,7 +786,27 @@ class HiggsRecoTTH(Module):
                             #jets tagged as coming from top didn't match with true partons coming from top"
                             nmismatchedtoptaggedjets +=1 #only with respect to the hadronic top where W -> qq, this is what being matched here
             sortedCandidateBranchValues = [x for _,x in sorted(zip(candidateMinimizers,candidateBranchValues))]
-            best = sortedCandidateBranchValues[0] if len(candidateMinimizers) else None
+            curbest = -99
+            if not len(candidateMinimizers):
+                best = None
+                correct = None
+            else:
+                curbest = 0
+                for i in range(len(sortedCandidateBranchValues)):
+                    if sortedCandidateBranchValues[i][9] < sortedCandidateBranchValues[curbest][9] : curbest = i
+                l2 = 0
+#                while sortedCandidateBranchValues[l2][4] == sortedCandidateBranchValues[0][4]: l2 = l2 + 1
+#                i = 0 if sortedCandidateBranchValues[0][14] < sortedCandidateBranchValues[l2][14] else l2
+#                best    = sortedCandidateBranchValues[i]
+                best    = sortedCandidateBranchValues[0]
+                correct = sortedCandidateBranchValues[curbest]
+#            if (len(QFromWFromH)==2 and len(LFromWFromH)==1) :
+#                print("right lep now: " + str(rightlepnow))
+#                print("good lep     : " + str(goodlepidx))
+#                if goodlepidx == -1: matchstr = "Null"
+#                else: matchstr = str(goodlepidx==rightlepnow)
+#                print("theymatched: " +str(rightlepnow)+str(goodlepidx)+matchstr)
+#                print("DeltaR: "+str(LFromWFromH[0].p4().DeltaR( lepsFO[rightlepnow].p4())))
             
             # function for sorting lists
             #def ExtractIndex(lst):
@@ -459,7 +816,7 @@ class HiggsRecoTTH(Module):
 
 ############# Kinematics of Gen-Level objects #############
             #TODO should I add if len(QFromWFromH)==2 here? 
-            if len(QFromWFromH)==2 and var==0:
+            if len(QFromWFromH)==2 and len(LFromWFromH)==1 and len(LFromWFromT)==1 and var==0:
                 for q1,q2 in itertools.combinations(QFromWFromH,2):
                     delR_H_partons = q1.p4().DeltaR(q2.p4())
                     trueGenQuarkSum = q1.p4()+q2.p4()
@@ -590,19 +947,41 @@ class HiggsRecoTTH(Module):
                 j2Idx       = best[6]
                 pTVisPlusNu = best[7]
                 pTHVis      = best[8]
-                jetreco1    = jets[best[5]] 
-                jetreco2    = jets[best[6]]
-                delR_H_j1l_reco = leps[best[4]].p4().DeltaR(jetreco1.p4())
-                delR_H_j2l_reco = leps[best[4]].p4().DeltaR(jetreco2.p4())
+                jetreco1    = jetsNoTopNoB[best[5]] 
+                jetreco2    = jetsNoTopNoB[best[6]]
+                delR_H_j1l_reco = lepsFO[best[4]].p4().DeltaR(jetreco1.p4())
+                delR_H_j2l_reco = lepsFO[best[4]].p4().DeltaR(jetreco2.p4())
+                maxdR       = best[10]
+                mindR       = best[11]
+                maxdRW      = best[12]
+                mindRW      = best[13]
                 #testing_list.extend(([jetreco1.p4().Pt(),best[5]],[jetreco2.p4().Pt(),best[6]]))
                 #lst=sorted(testing_list,reverse=True)
                 #print(ExtractIndex(lst))
                 #print(ExtractpT(lst))
+
+                mindRlj_correct     = correct[0]
+                mHvisconstr_correct = correct[1]
+                WMass_correct       = correct[2]
+                delR_H_j1j2_correct = correct[3]
+                lepIdx_correct      = correct[4]
+                j1Idx_correct       = correct[5]
+                j2Idx_correct       = correct[6]
+                pTVisPlusNu_correct = correct[7]
+                pTHVis_correct      = correct[8]
+                jetreco1_correct    = jetsNoTopNoB[correct[5]]
+                jetreco2_correct    = jetsNoTopNoB[correct[6]]
+                delR_H_j1l_reco_correct = lepsFO[correct[4]].p4().DeltaR(jetreco1_correct.p4())
+                delR_H_j2l_reco_correct = lepsFO[correct[4]].p4().DeltaR(jetreco2_correct.p4())
+                maxdR_correct       = correct[10]
+                mindR_correct       = correct[11]
+                maxdRW_correct      = correct[12]
+                mindRW_correct      = correct[13]
                 
                 if len(QFromWFromH)==2 and var==0:
                     if -99 not in jets_match_quarks_delr:
-                        pTVis_jets_match=(jetsNoTopNoB[jets_match_quarks_delr[0]].p4()+jetsNoTopNoB[jets_match_quarks_delr[1]].p4()+leps[best[4]].p4()).Pt()
-                        MVis_jets_match=(jetsNoTopNoB[jets_match_quarks_delr[0]].p4()+jetsNoTopNoB[jets_match_quarks_delr[1]].p4()+leps[best[4]].p4()).M()
+                        pTVis_jets_match=(jetsNoTopNoB[jets_match_quarks_delr[0]].p4()+jetsNoTopNoB[jets_match_quarks_delr[1]].p4()+lepsFO[best[4]].p4()).Pt()
+                        MVis_jets_match=(jetsNoTopNoB[jets_match_quarks_delr[0]].p4()+jetsNoTopNoB[jets_match_quarks_delr[1]].p4()+lepsFO[best[4]].p4()).M()
                         for cidx, cands in enumerate(sortedCandidateBranchValues):
                             match1 = jets_match_quarks_delr[0] == cands[5] and jets_match_quarks_delr[1] == cands[6]
                             match2 = jets_match_quarks_delr[1] == cands[5] and jets_match_quarks_delr[0] == cands[6]
@@ -621,7 +1000,7 @@ class HiggsRecoTTH(Module):
                     #print("WARNING: we have not one but ",len(LFromWFromH), "leptons from W from H. I am in the if best")
                 nmatchedleptons = 0
                 for l in LFromWFromH:
-                    if l.p4().DeltaR(leps[best[4]].p4()) < 0.1 or l.p4().DeltaR(leps[best[4]].p4()) < 0.1:
+                    if l.p4().DeltaR(lepsFO[best[4]].p4()) < 0.1 or l.p4().DeltaR(lepsFO[best[4]].p4()) < 0.1:
                         nmatchedleptons +=1
             
             else: pass  
@@ -645,6 +1024,32 @@ class HiggsRecoTTH(Module):
             ret["Hreco_nmismatchedtoptaggedjets%s"    %self.systsJEC[var]] = nmismatchedtoptaggedjets   if best else -99
             ret["Hreco_delR_H_j1l_reco%s"             %self.systsJEC[var]] = delR_H_j1l_reco            if best else -99 
             ret["Hreco_delR_H_j2l_reco%s"             %self.systsJEC[var]] = delR_H_j2l_reco            if best else -99
+            ret["Hreco_maxdR%s"                       %self.systsJEC[var]] = maxdR                      if best else -99
+            ret["Hreco_mindR%s"                       %self.systsJEC[var]] = mindR                      if best else -99
+            ret["Hreco_maxdRW%s"                      %self.systsJEC[var]] = maxdRW                     if best else -99
+            ret["Hreco_mindRW%s"                      %self.systsJEC[var]] = mindRW                     if best else -99
+            ret["Hreco_PtTop_recohtt%s"               %self.systsJEC[var]] = PtTop_recohtt
+            ret["Hreco_MTop_recohtt%s"                %self.systsJEC[var]] = MTop_recohtt
+            ret["Hreco_PtWFromTop_recohtt%s"          %self.systsJEC[var]] = PtWFromTop_recohtt
+            ret["Hreco_MWFromTop_recohtt%s"           %self.systsJEC[var]] = MWFromTop_recohtt
+            ret["Hreco_WFromTop_rightlep_delr%s"      %self.systsJEC[var]] = WFromTop_rightlep_delr
+            ret["Hreco_WFromTop_wronglep_delr%s"      %self.systsJEC[var]] = WFromTop_wronglep_delr
+
+            ret["Hreco_minDRlj_correct%s"                     %self.systsJEC[var]] = mindRlj_correct                    if best else -99
+            ret["Hreco_delR_H_j1j2_correct%s"                 %self.systsJEC[var]] = delR_H_j1j2_correct                if best else -99
+            ret["Hreco_visHmass_correct%s"                    %self.systsJEC[var]] = mHvisconstr_correct                if best else -99
+            ret["Hreco_Wmass_correct%s"                       %self.systsJEC[var]] = WMass_correct                      if best else -99
+            ret["Hreco_lepIdx_correct%s"                      %self.systsJEC[var]] = lepIdx_correct                     if best else -99
+            ret["Hreco_j1Idx_correct%s"                       %self.systsJEC[var]] = j1Idx_correct                      if best else -99
+            ret["Hreco_j2Idx_correct%s"                       %self.systsJEC[var]] = j2Idx_correct                      if best else -99
+            ret["Hreco_pTVisPlusNu_correct%s"                 %self.systsJEC[var]] = pTVisPlusNu_correct                if best else -99
+            ret["Hreco_pTHvis_correct%s"                      %self.systsJEC[var]] = pTHVis_correct                     if best else -99
+            ret["Hreco_delR_H_j1l_reco_correct%s"             %self.systsJEC[var]] = delR_H_j1l_reco_correct            if best else -99
+            ret["Hreco_delR_H_j2l_reco_correct%s"             %self.systsJEC[var]] = delR_H_j2l_reco_correct            if best else -99
+            ret["Hreco_maxdR_correct%s"                       %self.systsJEC[var]] = maxdR_correct                      if best else -99
+            ret["Hreco_mindR_correct%s"                       %self.systsJEC[var]] = mindR_correct                      if best else -99
+            ret["Hreco_maxdRW_correct%s"                      %self.systsJEC[var]] = maxdRW_correct                     if best else -99
+            ret["Hreco_mindRW_correct%s"                      %self.systsJEC[var]] = mindRW_correct                     if best else -99
 
             #delR and closest jet vars
             ret["Hreco_delR_H_partons%s"                                      %self.systsJEC[var]] = delR_H_partons
@@ -668,12 +1073,29 @@ class HiggsRecoTTH(Module):
             ret["Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH%s"            %self.systsJEC[var]] = closestJetInPTRes_flavour_ToQFromWFromH[bb]
 
             #lists from gen loop
+            ret["Hreco_nWFromH%s"                     %self.systsJEC[var]] = len(WFromH)
             ret["Hreco_nQFromWFromH%s"                %self.systsJEC[var]] = len(QFromWFromH)
             ret["Hreco_nLFromWFromH%s"                %self.systsJEC[var]] = len(LFromWFromH)
             ret["Hreco_nQFromWFromT%s"                %self.systsJEC[var]] = len(QFromWFromT)
             ret["Hreco_nLFromWFromT%s"                %self.systsJEC[var]] = len(LFromWFromT)
             ret["Hreco_nNuFromWFromH%s"               %self.systsJEC[var]] = len(NuFromWFromH)
             ret["Hreco_nNuFromWFromT%s"               %self.systsJEC[var]] = len(NuFromWFromT)
+            ret["Hreco_nZFromH%s"                     %self.systsJEC[var]] = len(ZFromH)
+            ret["Hreco_nQFromZFromH%s"                %self.systsJEC[var]] = len(QFromZFromH)
+            ret["Hreco_nLFromZFromH%s"                %self.systsJEC[var]] = len(LFromZFromH)
+            ret["Hreco_nNuFromZFromH%s"               %self.systsJEC[var]] = len(NuFromZFromH)
+            ret["Hreco_nTauFromH%s"                   %self.systsJEC[var]] = len(TauFromH)
+            ret["Hreco_nPiFromTauFromH%s"             %self.systsJEC[var]] = len(PiFromTauFromH)
+            ret["Hreco_nLFromTauFromH%s"              %self.systsJEC[var]] = len(LFromTauFromH)
+            ret["Hreco_nNuFromTauFromH%s"             %self.systsJEC[var]] = len(NuFromTauFromH)
+            ret["Hreco_nTNuFromTauFromH%s"            %self.systsJEC[var]] = len(TNuFromTauFromH)
+            ret["Hreco_nKaFromTauFromH%s"             %self.systsJEC[var]] = len(KaFromTauFromH)
+            ret["Hreco_nLFromTauFromWFromH%s"         %self.systsJEC[var]] = len(LFromTauFromWFromH)
+            ret["Hreco_nhFromTauFromWFromH%s"         %self.systsJEC[var]] = len(hFromTauFromWFromH)
+            ret["Hreco_nTauFromWFromH%s"              %self.systsJEC[var]] = len(TauFromWFromH)
+            ret["Hreco_nFO%s"                         %self.systsJEC[var]] = nFO
+            ret["Hreco_nLeptonicTops%s"               %self.systsJEC[var]] = len(leptonictops)
+            ret["Hreco_nHadTop%s"                     %self.systsJEC[var]] = nHadTop
             ret["Hreco_nJetsInCollection%s"           %self.systsJEC[var]] = len(jetsNoTopNoB)
 
             #kinematics of gen-level objects and matched objects
@@ -697,6 +1119,15 @@ class HiggsRecoTTH(Module):
             ret["Hreco_jet_matches_quark2_ptres%s"                             %self.systsJEC[var]] = jets_match_quarks_ptres[bb]
             ret["Hreco_M_jets_match%s"                                         %self.systsJEC[var]] = M_jets_match
             ret["Hreco_matchRank%s"                                            %self.systsJEC[var]] = matchRank
+            ret["Hreco_bestRank%s"                                             %self.systsJEC[var]] = curbest
+            ret["Hreco_mHRightLepton%s"                                        %self.systsJEC[var]] = mHRightLepton
+            ret["Hreco_mHWrongLepton%s"                                        %self.systsJEC[var]] = mHWrongLepton
+            ret["Hreco_HadTopPt%s"                                             %self.systsJEC[var]] = HadTopPt
+            ret["Hreco_HadTopM%s"                                              %self.systsJEC[var]] = HadTopM
+            ret["Hreco_WFromHadTopPt%s"                                        %self.systsJEC[var]] = WFromHadTopPt
+            ret["Hreco_WFromHadTopM%s"                                         %self.systsJEC[var]] = WFromHadTopM
+            ret["Hreco_WFromHiggsPt%s"                                         %self.systsJEC[var]] = WFromHiggsPt
+            ret["Hreco_WFromHiggsM%s"                                          %self.systsJEC[var]] = WFromHiggsM
 
             # other vars
             #TODO ret["Hreco_deltaM_trueGen_H%s"            %self.systsJEC[var]] = deltaM_trueGen_H           if best else -99 

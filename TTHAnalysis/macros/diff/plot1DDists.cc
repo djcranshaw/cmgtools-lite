@@ -11,6 +11,13 @@
 //  TFile f(fileName);
 //  TFile f("2lss_diff/original/TTHnobb_fxfx_Friend_NoTopMediumBottomVeto.root");
   TFile f("2lss_diff/TTHnobb_fxfx_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_Default_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_NoWindows_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_NoWindowsNoConstraint_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_NewDefaultMediumBVeto_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_Correct_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_DelLWThenDelRMediumBVeto_Friend.root");
+//  TFile f("2lss_diff/backups/OptimizationPresentation_062320/TTHnobb_fxfx_LepWithLeastBLikeNeighbourThenDelRNoBVeto_Friend.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_Current_Friend.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_NoWindows_Friend.root");
 //  TFile f("2lss_diff/TTHnobb_fxfx_Friend_NoTopNoBottomVeto.root");
@@ -45,7 +52,33 @@
   float Hreco_nmismatchedtoptaggedjets;
   float Hreco_delR_H_j1l_reco;
   float Hreco_delR_H_j2l_reco;
-   
+  float Hreco_maxdR;
+  float Hreco_mindR;
+  float Hreco_maxdRW;
+  float Hreco_mindRW;
+  float Hreco_PtTop_recohtt;
+  float Hreco_MTop_recohtt;
+  float Hreco_PtWFromTop_recohtt;
+  float Hreco_MWFromTop_recohtt;
+  float Hreco_WFromTop_rightlep_delr;
+  float Hreco_WFromTop_wronglep_delr;
+
+  float Hreco_minDRlj_correct;
+  float Hreco_delR_H_j1j2_correct;
+  float Hreco_visHmass_correct;
+  float Hreco_Wmass_correct;
+  float Hreco_lepIdx_correct;
+  float Hreco_j1Idx_correct;
+  float Hreco_j2Idx_correct;
+  float Hreco_pTVisPlusNu_correct;
+  float Hreco_pTHvis_correct;
+  float Hreco_delR_H_j1l_reco_correct;
+  float Hreco_delR_H_j2l_reco_correct;
+  float Hreco_maxdR_correct;
+  float Hreco_mindR_correct;
+  float Hreco_maxdRW_correct;
+  float Hreco_mindRW_correct;
+
   // delR and closest jet vars
   float Hreco_delR_H_partons;
   float Hreco_delR_H_q1l;
@@ -68,12 +101,29 @@
   float Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH;
   
   // lists from gen loop
+  float Hreco_nWFromH;
   float Hreco_nQFromWFromH;
   float Hreco_nLFromWFromH;
   float Hreco_nQFromWFromT;
   float Hreco_nLFromWFromT;
   float Hreco_nNuFromWFromH;
   float Hreco_nNuFromWFromT;
+  float Hreco_nZFromH;
+  float Hreco_nQFromZFromH;
+  float Hreco_nLFromZFromH;
+  float Hreco_nNuFromZFromH;
+  float Hreco_nTauFromH;
+  float Hreco_nPiFromTauFromH;
+  float Hreco_nLFromTauFromH;
+  float Hreco_nNuFromTauFromH;
+  float Hreco_nTNuFromTauFromH;
+  float Hreco_nKaFromTauFromH;
+  float Hreco_nLFromTauFromWFromH;
+  float Hreco_nhFromTauFromWFromH;
+  float Hreco_nTauFromWFromH;
+  float Hreco_nFO;
+  float Hreco_nLeptonicTops;
+  float Hreco_nHadTop;
   float Hreco_nJetsInCollection;
   
   // kinematics of gen-level objects and matched objects
@@ -97,6 +147,15 @@
   float Hreco_jet_matches_quark2_ptres;
   float Hreco_M_jets_match;
   float Hreco_matchRank;
+  float Hreco_bestRank;
+  float Hreco_mHRightLepton;
+  float Hreco_mHWrongLepton;
+  float Hreco_HadTopPt;
+  float Hreco_HadTopM;
+  float Hreco_WFromHadTopPt;
+  float Hreco_WFromHadTopM;
+  float Hreco_WFromHiggsPt;
+  float Hreco_WFromHiggsM;
 
   // reconstruction loop dependent vars
   ft->SetBranchAddress("Hreco_minDRlj",&Hreco_minDRlj);
@@ -115,6 +174,32 @@
   ft->SetBranchAddress("Hreco_nmismatchedtoptaggedjets",&Hreco_nmismatchedtoptaggedjets);
   ft->SetBranchAddress("Hreco_delR_H_j1l_reco",&Hreco_delR_H_j1l_reco);
   ft->SetBranchAddress("Hreco_delR_H_j2l_reco",&Hreco_delR_H_j2l_reco);
+  ft->SetBranchAddress("Hreco_maxdR",&Hreco_maxdR);
+  ft->SetBranchAddress("Hreco_mindR",&Hreco_mindR);
+  ft->SetBranchAddress("Hreco_maxdRW",&Hreco_maxdRW);
+  ft->SetBranchAddress("Hreco_mindRW",&Hreco_mindRW);
+  ft->SetBranchAddress("Hreco_PtTop_recohtt",&Hreco_PtTop_recohtt);
+  ft->SetBranchAddress("Hreco_MTop_recohtt",&Hreco_MTop_recohtt);
+  ft->SetBranchAddress("Hreco_PtWFromTop_recohtt",&Hreco_PtWFromTop_recohtt);
+  ft->SetBranchAddress("Hreco_MWFromTop_recohtt",&Hreco_MWFromTop_recohtt);
+  ft->SetBranchAddress("Hreco_WFromTop_rightlep_delr",&Hreco_WFromTop_rightlep_delr);
+  ft->SetBranchAddress("Hreco_WFromTop_wronglep_delr",&Hreco_WFromTop_wronglep_delr);
+
+  ft->SetBranchAddress("Hreco_minDRlj_correct",&Hreco_minDRlj_correct);
+  ft->SetBranchAddress("Hreco_delR_H_j1j2_correct",&Hreco_delR_H_j1j2_correct);
+  ft->SetBranchAddress("Hreco_visHmass_correct",&Hreco_visHmass_correct);
+  ft->SetBranchAddress("Hreco_Wmass_correct",&Hreco_Wmass_correct);
+  ft->SetBranchAddress("Hreco_lepIdx_correct",&Hreco_lepIdx_correct);
+  ft->SetBranchAddress("Hreco_j1Idx_correct",&Hreco_j1Idx_correct);
+  ft->SetBranchAddress("Hreco_j2Idx_correct",&Hreco_j2Idx_correct);
+  ft->SetBranchAddress("Hreco_pTVisPlusNu_correct",&Hreco_pTVisPlusNu_correct);
+  ft->SetBranchAddress("Hreco_pTHvis_correct",&Hreco_pTHvis_correct);
+  ft->SetBranchAddress("Hreco_delR_H_j1l_reco_correct",&Hreco_delR_H_j1l_reco_correct);
+  ft->SetBranchAddress("Hreco_delR_H_j2l_reco_correct",&Hreco_delR_H_j2l_reco_correct);
+  ft->SetBranchAddress("Hreco_maxdR_correct",&Hreco_maxdR_correct);
+  ft->SetBranchAddress("Hreco_mindR_correct",&Hreco_mindR_correct);
+  ft->SetBranchAddress("Hreco_maxdRW_correct",&Hreco_maxdRW_correct);
+  ft->SetBranchAddress("Hreco_mindRW_correct",&Hreco_mindRW_correct);
    
   // delR and closest jet vars
   ft->SetBranchAddress("Hreco_delR_H_partons",&Hreco_delR_H_partons);
@@ -138,12 +223,29 @@
   ft->SetBranchAddress("Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH",&Hreco_closestJetInPTRes_flavour_ToQ2FromWFromH);
   
   // lists from gen loop
+  ft->SetBranchAddress("Hreco_nWFromH",&Hreco_nWFromH);
   ft->SetBranchAddress("Hreco_nQFromWFromH",&Hreco_nQFromWFromH);
   ft->SetBranchAddress("Hreco_nLFromWFromH",&Hreco_nLFromWFromH);
   ft->SetBranchAddress("Hreco_nQFromWFromT",&Hreco_nQFromWFromT);
   ft->SetBranchAddress("Hreco_nLFromWFromT",&Hreco_nLFromWFromT);
   ft->SetBranchAddress("Hreco_nNuFromWFromH",&Hreco_nNuFromWFromH);
   ft->SetBranchAddress("Hreco_nNuFromWFromT",&Hreco_nNuFromWFromT);
+  ft->SetBranchAddress("Hreco_nZFromH",&Hreco_nZFromH);
+  ft->SetBranchAddress("Hreco_nQFromZFromH",&Hreco_nQFromZFromH);
+  ft->SetBranchAddress("Hreco_nLFromZFromH",&Hreco_nLFromZFromH);
+  ft->SetBranchAddress("Hreco_nNuFromZFromH",&Hreco_nNuFromZFromH);
+  ft->SetBranchAddress("Hreco_nTauFromH",&Hreco_nTauFromH);
+  ft->SetBranchAddress("Hreco_nPiFromTauFromH",&Hreco_nPiFromTauFromH);
+  ft->SetBranchAddress("Hreco_nLFromTauFromH",&Hreco_nLFromTauFromH);
+  ft->SetBranchAddress("Hreco_nNuFromTauFromH",&Hreco_nNuFromTauFromH);
+  ft->SetBranchAddress("Hreco_nTNuFromTauFromH",&Hreco_nTNuFromTauFromH);
+  ft->SetBranchAddress("Hreco_nKaFromTauFromH",&Hreco_nKaFromTauFromH);
+  ft->SetBranchAddress("Hreco_nLFromTauFromWFromH",&Hreco_nLFromTauFromWFromH);
+  ft->SetBranchAddress("Hreco_nhFromTauFromWFromH",&Hreco_nhFromTauFromWFromH);
+  ft->SetBranchAddress("Hreco_nTauFromWFromH",&Hreco_nTauFromWFromH);
+  ft->SetBranchAddress("Hreco_nFO",&Hreco_nFO);
+  ft->SetBranchAddress("Hreco_nLeptonicTops",&Hreco_nLeptonicTops);
+  ft->SetBranchAddress("Hreco_nHadTop",&Hreco_nHadTop);
   ft->SetBranchAddress("Hreco_nJetsInCollection",&Hreco_nJetsInCollection);
   
   // kinematics of gen-level objects and matched objects
@@ -167,6 +269,15 @@
   ft->SetBranchAddress("Hreco_jet_matches_quark2_ptres",&Hreco_jet_matches_quark2_ptres);
   ft->SetBranchAddress("Hreco_M_jets_match",&Hreco_M_jets_match);
   ft->SetBranchAddress("Hreco_matchRank",&Hreco_matchRank);
+  ft->SetBranchAddress("Hreco_bestRank",&Hreco_bestRank);
+  ft->SetBranchAddress("Hreco_mHRightLepton",&Hreco_mHRightLepton);
+  ft->SetBranchAddress("Hreco_mHWrongLepton",&Hreco_mHWrongLepton);
+  ft->SetBranchAddress("Hreco_HadTopPt",&Hreco_HadTopPt);
+  ft->SetBranchAddress("Hreco_HadTopM",&Hreco_HadTopM);
+  ft->SetBranchAddress("Hreco_WFromHadTopPt",&Hreco_WFromHadTopPt);
+  ft->SetBranchAddress("Hreco_WFromHadTopM",&Hreco_WFromHadTopM);
+  ft->SetBranchAddress("Hreco_WFromHiggsPt",&Hreco_WFromHiggsPt);
+  ft->SetBranchAddress("Hreco_WFromHiggsM",&Hreco_WFromHiggsM);  
 
 // *** Declare histograms *** 
   TH1D *hst_pTHvis = new TH1D("hst_pTHvis","hst_pTHvis",nBins,-0.5,599.5);
@@ -190,13 +301,46 @@
   TH1D *hst_closestJetInPTRes_ptres_ToQ2FromWFromH = new TH1D("hst_closestJetInPTRes_ptres_Q2","hst_closestJetInPTRes_ptres_Q2",nBins,-2,3);
 
   TH1D *hst_matchRank = new TH1D("hst_matchRank","hst_matchRank",7,-0.5,6.5);
-  TH1D *hst_Wmass = new TH1D("hst_Wmass","hst_Wmass",nBins,45,115);
+  TH1D *hst_bestRank = new TH1D("hst_bestRank","hst_bestRank",51,-0.5,50.5);
+  TH1D *hst_Wmass = new TH1D("hst_Wmass","hst_Wmass",nBins,0,299.5);
   TH1D *hst_M_jets_match = new TH1D("hst_M_jets_match","hst_M_jets_match",nBins,0,130);
   TH1D *hst_M_jets_match_ifbest = new TH1D("hst_M_jets_match_ifbest","hst_M_jets_match_ifbest",nBins,0,130);
+  TH1D *hst_mHRightLepton = new TH1D("hst_mHRightLepton","hst_mHRightLepton",nBins,0,400);
+  TH1D *hst_mHWrongLepton = new TH1D("hst_mHWrongLepton","hst_mHWrongLepton",nBins,0,400);
+  TH1D *hst_HadTopPt = new TH1D("hst_HadTopPt","hst_HadTopPt",nBins,0,500);
+  TH1D *hst_HadTopM = new TH1D("hst_HadTopM","hst_HadTopM",nBins,130,220);
+  TH1D *hst_WFromHadTopPt = new TH1D("hst_WFromHadTopPt","hst_WFromHadTopPt",nBins,0,500);
+  TH1D *hst_WFromHadTopM = new TH1D("hst_WFromHadTopM","hst_WFromHadTopM",nBins,0,220);
+  TH1D *hst_WFromHiggsPt = new TH1D("hst_WFromHiggsPt","hst_WFromHiggsPt",nBins,0,500);
+  TH1D *hst_WFromHiggsM = new TH1D("hst_WFromHiggsM","hst_WFromHiggsM",nBins,0,220);
+  TH1D *hst_PtTop_recohtt = new TH1D("hst_PtTop_recohtt","hst_PtTop_recohtt",nBins,0,500);
+  TH1D *hst_MTop_recohtt = new TH1D("hst_MTop_recohtt","hst_MTop_recohtt",nBins,130,220);
+  TH1D *hst_PtWFromTop_recohtt = new TH1D("hst_PtWFromTop_recohtt","hst_PtWFromTop_recohtt",nBins,0,500);
+  TH1D *hst_MWFromTop_recohtt = new TH1D("hst_MWFromTop_recohtt","hst_MWFromTop_recohtt",nBins,0,220);
 
+  TH2D *hst_WFromTop_2leps_delr = new TH2D("hst_WFromTop_2leps_delr","hst_WFromTop_2leps_delr",40,0,6,40,0,6);
+
+  TH2D *hst_recogen_PtTop = new TH2D("hst_recogen_PtTop","hst_recogen_PtTop",10,0,500,10,0,500);
+
+  TH1D *hst_nWFromH = new TH1D("hst_nWFromH","hst_nWFromH",6,-0.5,5.5);
   TH1D *hst_nQFromWFromH = new TH1D("hst_nQFromWFromH","hst_nQFromWFromH",6,-0.5,5.5);
   TH1D *hst_nNuFromWFromH = new TH1D("hst_nNuFromWFromH","hst_nNuFromWFromH",6,-0.5,5.5);
   TH1D *hst_nLFromWFromH = new TH1D("hst_nLFromWFromH","hst_nLFromWFromH",6,-0.5,5.5);
+  TH1D *hst_nLFromWFromT = new TH1D("hst_nLFromWFromT","hst_nLFromWFromT",6,-0.5,5.5);
+  TH1D *hst_nZFromH = new TH1D("hst_nZFromH","hst_nZFromH",6,-0.5,5.5);
+  TH1D *hst_nQFromZFromH = new TH1D("hst_nQFromZFromH","hst_nQFromZFromH",6,-0.5,5.5);
+  TH1D *hst_nNuFromZFromH = new TH1D("hst_nNuFromZFromH","hst_nNuFromZFromH",6,-0.5,5.5);
+  TH1D *hst_nLFromZFromH = new TH1D("hst_nLFromZFromH","hst_nLFromZFromH",6,-0.5,5.5);
+  TH1D *hst_nTauFromH = new TH1D("hst_nTauFromH","hst_nTauFromH",6,-0.5,5.5);
+  TH1D *hst_nPiFromTauFromH = new TH1D("hst_nPiFromTauFromH","hst_nPiFromTauFromH",6,-0.5,5.5);
+  TH1D *hst_nLFromTauFromH = new TH1D("hst_nLFromTauFromH","hst_nLFromTauFromH",6,-0.5,5.5);
+  TH1D *hst_nNuFromTauFromH = new TH1D("hst_nNuFromTauFromH","hst_nNuFromTauFromH",6,-0.5,5.5);
+  TH1D *hst_nTNuFromTauFromH = new TH1D("hst_nTNuFromTauFromH","hst_nTNuFromTauFromH",10,-0.5,9.5);
+  TH1D *hst_nKaFromTauFromH = new TH1D("hst_nKaFromTauFromH","hst_nKaFromTauFromH",10,-0.5,9.5);
+  TH1D *hst_nLFromTauFromWFromH = new TH1D("hst_nLFromTauFromWFromH","hst_nLFromTauFromWFromH",6,-0.5,5.5);
+  TH1D *hst_nhFromTauFromWFromH = new TH1D("hst_nhFromTauFromWFromH","hst_nhFromTauFromWFromH",6,-0.5,5.5);
+  TH1D *hst_nTauFromWFromH = new TH1D("hst_nTauFromWFromH","hst_nTauFromWFromH",6,-0.5,5.5);
+  TH1D *hst_nFO = new TH1D("hst_nFO","hst_nFO",6,-0.5,5.5);
   TH1D *hst_nJetsInCollection = new TH1D("hst_nJetsInCollection","hst_nJetsInCollection",20,-0.5,19.5);
   
   TH1D *hst_qLargePtNJet0 = new TH1D("hst_qLargePtNJet0","hst_qLargePtNJet0",nBins,-0.5,299.5);
@@ -218,6 +362,7 @@
   TH1D *hst_qLargePtNJet1F4 = new TH1D("hst_qLargePtNJet1F4","hst_qLargePtNJet1F4",nBins,-0.5,299.5);
 
   TH1D *hst_NSelectedMatchesVsNJet = new TH1D("hst_NSelectedMatchesVsNJet","hst_NSelectedMatchesVsNJet",20,-0.5,19.5);
+  TH1D *hst_NSelectedMatchesVsNJetFrac = new TH1D("hst_NSelectedMatchesVsNJetFrac","hst_NSelectedMatchesVsNJetFrac",20,-0.5,19.5);
 
   TH2D *hst_flavourMatchEffQ1 = new TH2D("hst_flavourMatchEffQ1","hst_flavourMatchEffQ1",80,0.0125,2.0125,80,0.0125,2.0125); // FIXME
   TH2D *hst_flavourMatchEffQ2 = new TH2D("hst_flavourMatchEffQ2","hst_flavourMatchEffQ2",80,0.0125,2.0125,80,0.0125,2.0125); // FIXME
@@ -240,6 +385,28 @@
 
   TH2D *hst_mjjVsdRjj = new TH2D("hst_mjjVsdRjj","hst_mjjVsdRjj",25,-0.5,139.5,25,0,8);
   TH2D *hst_mqqVsdRqq = new TH2D("hst_mqqVsdRqq","hst_mqqVsdRqq",25,-0.5,139.5,25,0,8);
+  TH2D *hst_bestVsPTRes = new TH2D("hst_bestVsPTRes","hst_bestVsPTRes",51,-0.5,50.5,30,-1.1,4.1);
+
+  TH1D *hst_matchComb = new TH1D("hst_matchComb","hst_matchComb",12,-0.5,11.5);
+  TH1D *hst_delRlj2 = new TH1D("hst_delRlj2","hst_delRlj2",30,0,5);
+  TH1D *hst_delRlj2_correct = new TH1D("hst_delRlj2_correct","hst_delRlj2_correct",30,0,5);
+  TH1D *hst_delRlj2_diff = new TH1D("hst_delRlj2_diff","hst_delRlj2_diff",30,-5,5);
+  TH1D *hst_delRj1j2 = new TH1D("hst_delRj1j2","hst_delRj1j2",30,0,5);
+  TH1D *hst_delRj1j2_correct = new TH1D("hst_delRj1j2_correct","hst_delRj1j2_correct",30,0,5);
+  TH1D *hst_delRj1j2_diff = new TH1D("hst_delRj1j2_diff","hst_delRj1j2_diff",30,-5,5);
+  TH1D *hst_mj1j2 = new TH1D("hst_mj1j2","hst_mj1j2",nBins,0,200);
+  TH1D *hst_mj1j2_correct = new TH1D("hst_mj1j2_correct","hst_mj1j2_correct",nBins,0,200);
+  TH1D *hst_j2delIdx = new TH1D("hst_j2delIdx","hst_j2delIdx",11,-5.5,5.5);
+
+  TH1D *hst_zWMass_correct = new TH1D("hst_zWMass_correct","hst_zWMass_correct",200,0,300);
+  TH1D *hst_zHMass_correct = new TH1D("hst_zHMass_correct","hst_zHMass_correct",200,0,300);
+  TH1D *hst_zmaxDR_correct = new TH1D("hst_zmaxDR_correct","hst_zmaxDR_correct",200,0,5);
+  TH1D *hst_zminDR_correct = new TH1D("hst_zminDR_correct","hst_zminDR_correct",200,0,5);
+  TH1D *hst_zmaxDRW_correct = new TH1D("hst_zmaxDRW_correct","hst_zmaxDRW_correct",200,0,5);
+  TH1D *hst_zminDRW_correct = new TH1D("hst_zminDRW_correct","hst_zminDRW_correct",200,0,5);
+  TH1D *hst_zDRj1j2_correct = new TH1D("hst_zDRj1j2_correct","hst_zDRj1j2_correct",200,0,5);
+
+  TH1D *hst_lepIdx_correct = new TH1D("hst_lepIdx_correct","hst_lepIdx_correct",6,-0.5,5.5);
 
 // *** Declare Counts ***
   const int nFMBins = 80;
@@ -263,11 +430,25 @@
       nEventsQ2Total[i][j] = 0;
     }
   }
+  int j1closest = 0;
+  int j2closest = 0;
+  int closestjetiscorrect = 0;
+  int closestlepiscorrect = 0;
+  int oneoffour = 0;
+  int twooffour = 0;
+  int threeoffour = 0;
+  int fouroffour = 0;
+  int combocheck = 0;
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
     // Calculate Counts
-    if (Hreco_nQFromWFromH != 2) continue;
+    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
+    if (Hreco_nLFromWFromH == 1 && (0||Hreco_nLFromTauFromWFromH == 1)) oneoffour ++;
+    if (Hreco_nLFromWFromH == 1 && (0||Hreco_nhFromTauFromWFromH >= 1)) twooffour ++;
+    if (Hreco_nQFromWFromH == 2 && (0||Hreco_nLFromTauFromWFromH == 1)) threeoffour ++;
+    if (Hreco_nQFromWFromH == 2 && (0||Hreco_nhFromTauFromWFromH >= 1)) fouroffour ++;
+    if (Hreco_nQFromWFromH == 2 && Hreco_nLFromWFromH == 1 && Hreco_nLFromWFromT == 1) combocheck ++;
     bool Q1Match = Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99 && Hreco_closestJetInDelR_delR_ToQ1FromWFromH < 0.3 && abs(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH) < 0.6;
     bool Q2Match = Hreco_closestJetInDelR_delR_ToQ2FromWFromH != -99 && Hreco_closestJetInDelR_delR_ToQ2FromWFromH < 0.3 && abs(Hreco_closestJetInDelR_ptres_ToQ2FromWFromH) < 0.6;
     bool uniqueJetMatch = Q1Match && Q2Match && Hreco_closestJetInDelR_pt_ToQ1FromWFromH != Hreco_closestJetInDelR_pt_ToQ2FromWFromH;
@@ -309,11 +490,77 @@
       }
     }
 
+    // Fill z histograms
+    hst_zWMass_correct->Fill(Hreco_Wmass_correct);
+    hst_zHMass_correct->Fill(Hreco_visHmass_correct);
+    hst_zmaxDR_correct->Fill(Hreco_maxdR_correct);
+    hst_zminDR_correct->Fill(Hreco_mindR_correct);
+    hst_zmaxDRW_correct->Fill(Hreco_maxdRW_correct);
+    hst_zminDRW_correct->Fill(Hreco_mindRW_correct);
+    hst_zDRj1j2_correct->Fill(Hreco_delR_H_j1j2_correct);
+
+    // Fill mHRight and mHWrong
+    if (Hreco_mHRightLepton != -99) hst_mHRightLepton->Fill(Hreco_mHRightLepton);
+    if (Hreco_mHWrongLepton != -99) hst_mHWrongLepton->Fill(Hreco_mHWrongLepton);
+
+    // Fill Had Top histos
+    if (Hreco_HadTopPt != -99 && Hreco_PtTop_recohtt != -99 && Hreco_WFromHadTopPt != -99 && Hreco_WFromHiggsPt != -99 && Hreco_PtWFromTop_recohtt != -99 && Hreco_nHadTop == 1) {
+      hst_HadTopPt->Fill(Hreco_HadTopPt);
+      hst_HadTopM->Fill(Hreco_HadTopM);
+      hst_WFromHadTopPt->Fill(Hreco_WFromHadTopPt);
+      hst_WFromHadTopM->Fill(Hreco_WFromHadTopM);
+      hst_WFromHiggsPt->Fill(Hreco_WFromHiggsPt);
+      hst_WFromHiggsM->Fill(Hreco_WFromHiggsM);
+      hst_PtTop_recohtt->Fill(Hreco_PtTop_recohtt);
+      hst_MTop_recohtt->Fill(Hreco_MTop_recohtt);
+      hst_PtWFromTop_recohtt->Fill(Hreco_PtWFromTop_recohtt);
+      hst_MWFromTop_recohtt->Fill(Hreco_MWFromTop_recohtt);
+      hst_recogen_PtTop->Fill(Hreco_PtTop_recohtt,Hreco_HadTopPt);
+    }
+
+    if (Hreco_WFromTop_rightlep_delr != -99 and Hreco_WFromTop_wronglep_delr != -99) {
+      hst_WFromTop_2leps_delr->Fill(Hreco_WFromTop_rightlep_delr, Hreco_WFromTop_wronglep_delr);
+    }
+
     // Plot 2D m_jj distributions
     if (uniqueJetMatch) hst_mjjVsdRjj->Fill(Hreco_M_jets_match,Hreco_delR_H_j1j2);
     if (Hreco_dRGenQuarks != -99) hst_mqqVsdRqq->Fill(Hreco_MGenQuarks,Hreco_dRGenQuarks);
 
-    // Plot DelR and PTRes Distributions
+    // Fill matching combination histogram
+    int matchCode = 0;
+    if (Hreco_bestRank <= 5 && Hreco_bestRank >= 0) {
+      if (Hreco_lepIdx == Hreco_lepIdx_correct) matchCode += 6;
+      if (Hreco_j1Idx == Hreco_j1Idx_correct && Hreco_j2Idx == Hreco_j2Idx_correct) { matchCode += 5;
+      } else if (Hreco_j1Idx == Hreco_j1Idx_correct) { matchCode += 4;
+      } else if (Hreco_j2Idx == Hreco_j1Idx_correct) { matchCode += 3;
+      } else if (Hreco_j2Idx == Hreco_j2Idx_correct) { matchCode += 2;
+      } else if (Hreco_j1Idx == Hreco_j2Idx_correct) { matchCode += 1;
+      }
+      hst_matchComb->Fill(matchCode);
+    }
+    if (matchCode == 10) {
+//    if (Hreco_j1Idx == Hreco_j1Idx_correct) {
+      hst_delRlj2->Fill(Hreco_delR_H_j2l_reco);
+      hst_delRlj2_correct->Fill(Hreco_delR_H_j2l_reco_correct);
+      hst_delRlj2_diff->Fill(Hreco_delR_H_j2l_reco - Hreco_delR_H_j2l_reco_correct);
+      hst_delRj1j2->Fill(Hreco_delR_H_j1j2);
+      hst_delRj1j2_correct->Fill(Hreco_delR_H_j1j2_correct);
+      hst_delRj1j2_diff->Fill(Hreco_delR_H_j1j2 - Hreco_delR_H_j1j2_correct);
+      hst_mj1j2->Fill(Hreco_Wmass);
+      hst_mj1j2_correct->Fill(Hreco_Wmass_correct);
+      hst_j2delIdx->Fill(Hreco_j2Idx - Hreco_j2Idx_correct);
+    }
+    if (Hreco_delR_H_j1l_reco == Hreco_minDRlj && Hreco_minDRlj != -99) j1closest ++;
+    if (Hreco_delR_H_j2l_reco == Hreco_minDRlj && Hreco_minDRlj != -99) j2closest ++;
+
+    // Check how often closest jet to lepton is correct
+    bool j1isclosest = (Hreco_delR_H_j1l_reco == Hreco_minDRlj && Hreco_minDRlj != -99);
+    if (j1isclosest && (Hreco_j1Idx == Hreco_j1Idx_correct || Hreco_j1Idx == Hreco_j2Idx_correct)) closestjetiscorrect ++;
+    if (!(j1isclosest) && (Hreco_j2Idx == Hreco_j1Idx_correct || Hreco_j2Idx == Hreco_j2Idx_correct)) closestjetiscorrect ++;
+//    if (Hreco_lepIdx == Hreco_lepIdx_correct && Hreco_lepIdx != -99) closestlepiscorrect ++;
+    if (Hreco_mindRW == 0) closestlepiscorrect ++;
+
+    // Plot delR and PTRes distributions
     if (Hreco_closestJetInDelR_delR_ToQ1FromWFromH != -99) hst_closestJetInDelR_delR_ToQ1FromWFromH->Fill(Hreco_closestJetInDelR_delR_ToQ1FromWFromH);
     if (Hreco_closestJetInDelR_ptres_ToQ1FromWFromH != -99) hst_closestJetInDelR_ptres_ToQ1FromWFromH->Fill(Hreco_closestJetInDelR_ptres_ToQ1FromWFromH);
     if (Hreco_closestJetInPTRes_delR_ToQ1FromWFromH != -99) hst_closestJetInPTRes_delR_ToQ1FromWFromH->Fill(Hreco_closestJetInPTRes_delR_ToQ1FromWFromH);
@@ -343,14 +590,37 @@
     if (Hreco_M_jets_match != -99) hst_M_jets_match->Fill(Hreco_M_jets_match);
     if (Hreco_M_jets_match != -99 && Hreco_pTHvis != -99) hst_M_jets_match_ifbest->Fill(Hreco_M_jets_match);
 
-    // Plot Match Rank if entry != -99
+    // Plot match rank & best rank if entry != -99
     if (Hreco_matchRank != -99) hst_matchRank->Fill(Hreco_matchRank);
+    if (Hreco_bestRank > hst_bestRank->GetNbinsX()-1) Hreco_bestRank = hst_bestRank->GetNbinsX()-1;
+    if (Hreco_bestRank != -99) hst_bestRank->Fill(Hreco_bestRank);
+    double tempptres = (Hreco_pTVisPlusNu-Hreco_pTHgen)/Hreco_pTHgen;
+    if (tempptres > 4.09) tempptres = 4.09;
+    if (Hreco_bestRank != -99) hst_bestVsPTRes->Fill(Hreco_bestRank,tempptres);
 
     // Plot number of gen objects
+    hst_nWFromH->Fill(Hreco_nWFromH);
     hst_nQFromWFromH->Fill(Hreco_nQFromWFromH);
     hst_nNuFromWFromH->Fill(Hreco_nNuFromWFromH);
     hst_nLFromWFromH->Fill(Hreco_nLFromWFromH);
-    hst_nJetsInCollection->Fill(Hreco_nJetsInCollection);
+    hst_nLFromWFromT->Fill(Hreco_nLFromWFromT);
+    hst_nZFromH->Fill(Hreco_nZFromH);
+    hst_nQFromZFromH->Fill(Hreco_nQFromZFromH);
+    hst_nNuFromZFromH->Fill(Hreco_nNuFromZFromH);
+    hst_nLFromZFromH->Fill(Hreco_nLFromZFromH);
+    hst_nTauFromH->Fill(Hreco_nTauFromH);
+    hst_nPiFromTauFromH->Fill(Hreco_nPiFromTauFromH);
+    hst_nLFromTauFromH->Fill(Hreco_nLFromTauFromH);
+    hst_nNuFromTauFromH->Fill(Hreco_nNuFromTauFromH);
+    hst_nTNuFromTauFromH->Fill(Hreco_nTNuFromTauFromH);
+    hst_nKaFromTauFromH->Fill(Hreco_nKaFromTauFromH);
+    hst_nLFromTauFromWFromH->Fill(Hreco_nLFromTauFromWFromH);
+    hst_nhFromTauFromWFromH->Fill(Hreco_nhFromTauFromWFromH);
+    hst_nTauFromWFromH->Fill(Hreco_nTauFromWFromH);
+    hst_nFO->Fill(Hreco_nFO);
+    if (Hreco_matchRank != -99) hst_nJetsInCollection->Fill(Hreco_nJetsInCollection);
+
+    hst_lepIdx_correct->Fill(Hreco_lepIdx_correct);
 
     // Plot quark pT for events with varying nJets & flavour
     float qpt_large = Hreco_quark1pT > Hreco_quark2pT ? Hreco_quark1pT : Hreco_quark2pT;
@@ -415,7 +685,7 @@
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2) continue;
+    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
     if (Hreco_pTHvis == -99 || Hreco_pTTrueGen == -99) continue;
     NN ++;
     xx += Hreco_pTHvis;
@@ -434,14 +704,14 @@
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2) continue;
-    if (Hreco_pTTrueGen == -99 || Hreco_pTTrueGenPlusNu == -99) continue;
+    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
+    if (Hreco_pTTrueGen == -99 || Hreco_pTHgen == -99) continue;
     NN ++;
     yy += Hreco_pTTrueGen;
-    zz += Hreco_pTTrueGenPlusNu;
+    zz += Hreco_pTHgen;
     yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
-    yyzz += Hreco_pTTrueGen*Hreco_pTTrueGenPlusNu;
-    zzzz += Hreco_pTTrueGenPlusNu*Hreco_pTTrueGenPlusNu;
+    yyzz += Hreco_pTTrueGen*Hreco_pTHgen;
+    zzzz += Hreco_pTHgen*Hreco_pTHgen;
   }
   double visfullcorr = (NN*yyzz - yy*zz)/sqrt((NN*yyyy-yy*yy)*(NN*zzzz-zz*zz));
   NN = 0;
@@ -453,14 +723,14 @@
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2) continue;
-    if (Hreco_pTHvis == -99 || Hreco_pTTrueGenPlusNu == -99) continue;
+    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
+    if (Hreco_pTHvis == -99 || Hreco_pTHgen == -99) continue;
     NN ++;
     xx += Hreco_pTHvis;
-    zz += Hreco_pTTrueGenPlusNu;
+    zz += Hreco_pTHgen;
     xxxx += Hreco_pTHvis*Hreco_pTHvis;
-    xxzz += Hreco_pTHvis*Hreco_pTTrueGenPlusNu;
-    zzzz += Hreco_pTTrueGenPlusNu*Hreco_pTTrueGenPlusNu;
+    xxzz += Hreco_pTHvis*Hreco_pTHgen;
+    zzzz += Hreco_pTHgen*Hreco_pTHgen;
   }
   double totalcorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
   NN = 0;
@@ -482,6 +752,25 @@
   }
   double totalcorrnocuts   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
 
+  NN = 0;
+  xx = 0;
+  zz = 0;
+  xxxx = 0;
+  xxzz = 0;
+  zzzz = 0;
+  for (int i=0; i<ft->GetEntries(); i++)
+  {
+    ft->GetEntry(i);
+    if (Hreco_PtTop_recohtt == -99 || Hreco_HadTopPt == -99) continue;
+    NN ++;
+    xx += Hreco_PtTop_recohtt;
+    zz += Hreco_HadTopPt;
+    xxxx += Hreco_PtTop_recohtt*Hreco_PtTop_recohtt;
+    xxzz += Hreco_PtTop_recohtt*Hreco_HadTopPt;
+    zzzz += Hreco_HadTopPt*Hreco_HadTopPt;
+  }
+  double TopPtCorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
+
   // Populate 2D flavour matching histograms
   for (int i=0; i<nFMBins; i++) {
     for (int j=0; j<nFMBins; j++) {
@@ -489,6 +778,19 @@
       hst_flavourMatchEffQ1->Fill((float)(i+1)*((float)dRMax/(float)nFMBins),(float)(j+1)*((float)dPtMax/(float)nFMBins),Q1frac);
       float Q2frac = (float) nEventsQ2MatchFlavour[i][j] / (float) nEventsQ2Total[i][j];
       hst_flavourMatchEffQ2->Fill((float)(i+1)*((float)dRMax/(float)nFMBins),(float)(j+1)*((float)dPtMax/(float)nFMBins),Q2frac);
+    }
+  }
+
+  // Populate NSelectedMatchesVsNJetFrac histogram
+  for (int i=1; i<= hst_NSelectedMatchesVsNJetFrac->GetNbinsX(); i++) {
+    float Num = hst_NSelectedMatchesVsNJet->GetBinContent(i);
+    float Den = hst_nJetsInCollection->GetBinContent(i);
+    float sf = 1; //(i-1)*(i-2)/2.0;
+    if (Den == 0) {
+      hst_NSelectedMatchesVsNJetFrac->SetBinContent(i,0);
+    } else {
+      hst_NSelectedMatchesVsNJetFrac->SetBinContent(i,sf*Num/Den);
+      hst_NSelectedMatchesVsNJetFrac->SetBinError(i,sf*sqrt(Num)/Den);
     }
   }
 
@@ -524,6 +826,15 @@
   hst_Q1EffVsEta->Scale(1.0/4.0);
   hst_Q2EffVsEta->Rebin(4);
   hst_Q2EffVsEta->Scale(1.0/4.0);
+
+  // Normalize 2D best distribution
+  TH2D *hst_bestVsPTResNormed = (TH2D *) hst_bestVsPTRes->Clone();
+  for (int i=1; i<=51; i++) {
+    for (int j=1; j<=nBins; j++) {
+        int bin = hst_bestVsPTResNormed->GetBin(i,j);
+      hst_bestVsPTResNormed->SetBinContent(bin,hst_bestVsPTResNormed->GetBinContent(bin)/hst_bestRank->GetBinContent(i));
+    }
+  }
 
   // Scale all distributions
   hst_pTHvis->Scale(1/hst_pTHvis->GetEntries());
@@ -573,7 +884,20 @@
   cout << "visfullcorr:     " << visfullcorr << endl;
   cout << "totalcorr:       " << totalcorr << endl;
   cout << "totalcorrnocuts: " << totalcorrnocuts << endl;
+  cout << "TopPtCorr:       " << TopPtCorr << endl;
   cout << "\n\n";
+
+  cout << "j1closest: " << j1closest << endl;
+  cout << "j2closest: " << j2closest << endl;
+  cout << "closestjetiscorrect: " << closestjetiscorrect << endl;
+  cout << "closestlepiscorrect: " << closestlepiscorrect << endl;
+  cout << "\n\n";
+
+  cout << "oneoffour:   " << oneoffour << endl;
+  cout << "twooffour:   " << twooffour << endl;
+  cout << "threeoffour: " << threeoffour << endl;
+  cout << "fouroffour:  " << fouroffour << endl;
+  cout << "combocheck:  " << combocheck << endl;
 
   gSystem->Exec("mkdir 1DDistPlots");
   TString VetoString = TVet+BVet+"Veto";
@@ -1031,5 +1355,199 @@
   hst_mqqVsdRqq->SetTitle("Gen Quarks");
   hst_mqqVsdRqq->Draw("colz");
   can28->SaveAs("1DDistPlots/plot_mqqVsdRqq.png");
-}
 
+  TCanvas *can29 = new TCanvas();
+  hst_bestRank->SetStats(0);
+  hst_bestRank->GetXaxis()->SetTitle("Entry in Candidate List");
+  hst_bestRank->GetYaxis()->SetTitle("N Event");
+  hst_bestRank->SetTitle("Rank of best (smallest relative difference between reco+nu & gen) candidate");
+  hst_bestRank->Draw();
+  TLatex tex29(.4,.85,VetoString);
+  tex29.SetTextSize(0.03);
+  tex29.SetNDC(kTRUE);
+  tex29.Draw();
+  can29->SaveAs("1DDistPlots/plot_bestRank.png");
+
+  TCanvas *can30 = new TCanvas();
+  hst_bestVsPTRes->SetStats(0);
+  hst_bestVsPTRes->GetXaxis()->SetTitle("Entry in Candidate List");
+  hst_bestVsPTRes->GetYaxis()->SetTitle("N Event");
+  hst_bestVsPTRes->SetTitle("Rank of best candidate vs pT resolution");
+  hst_bestVsPTRes->Draw("colz");
+  can30->SetLogz();
+  can30->SaveAs("1DDistPlots/plot_bestVsPTRes.png");
+
+//  TCanvas *can31 = new TCanvas();
+//  hst_bestVsPTResNormed->SetStats(0);
+//  hst_bestVsPTResNormed->GetXaxis()->SetTitle("Entry in Candidate List");
+//  hst_bestVsPTResNormed->GetYaxis()->SetTitle("N Event");
+//  hst_bestVsPTResNormed->SetTitle("Rank of best candidate vs pT resolution (normed by column)");
+//  hst_bestVsPTResNormed->Draw("colz");
+//  can31->SetLogz();
+//  can31->SaveAs("1DDistPlots/plot_bestVsPTResNormed.png");
+
+  TCanvas *can32 = new TCanvas();
+  hst_matchComb->Draw();
+  can32->SaveAs("1DDistPlots/plot_matchComb.png");
+
+  TCanvas *can33 = new TCanvas();
+  hst_delRlj2_correct->SetLineColor(kRed);
+  hst_delRlj2->Draw();
+  hst_delRlj2_correct->Draw("SAME");
+  can33->SaveAs("1DDistPlots/plot_delRlj2.png");
+
+  TCanvas *can34 = new TCanvas();
+  hst_delRlj2_diff->Draw();
+  can34->SaveAs("1DDistPlots/plot_delRlj2_diff.png");
+
+  TCanvas *can35 = new TCanvas();
+  hst_delRj1j2_correct->SetLineColor(kRed);
+  hst_delRj1j2->Draw();
+  hst_delRj1j2_correct->Draw("SAME");
+  can35->SaveAs("1DDistPlots/plot_delRj1j2.png");
+
+  TCanvas *can36 = new TCanvas();
+  hst_delRj1j2_diff->Draw();
+  can36->SaveAs("1DDistPlots/plot_delRj1j2_diff.png");
+
+  TCanvas *can37 = new TCanvas();
+  hst_mj1j2_correct->SetLineColor(kRed);
+  hst_mj1j2->Draw();
+  hst_mj1j2_correct->Draw("SAME");
+  can37->SaveAs("1DDistPlots/plot_mj1j2.png");
+
+  TCanvas *can38 = new TCanvas();
+  hst_j2delIdx->Draw();
+  can38->SaveAs("1DDistPlots/plot_j2delIdx.png");
+
+  TCanvas *can39 = new TCanvas();
+  hst_zWMass_correct->Draw();
+  can39->SaveAs("1DDistPlots/plot_zWMass_correct.png");
+
+  TCanvas *can40 = new TCanvas();
+  hst_zHMass_correct->Draw();
+  can40->SaveAs("1DDistPlots/plot_zHMass_correct.png");
+
+  TCanvas *can41 = new TCanvas();
+  hst_zmaxDR_correct->Draw();
+  can41->SaveAs("1DDistPlots/plot_zmaxDR_correct.png");
+
+  TCanvas *can42 = new TCanvas();
+  hst_zminDR_correct->Draw();
+  can42->SaveAs("1DDistPlots/plot_zminDR_correct.png");
+
+  TCanvas *can43 = new TCanvas();
+  hst_zmaxDRW_correct->Draw();
+  can43->SaveAs("1DDistPlots/plot_zmaxDRW_correct.png");
+
+  TCanvas *can44 = new TCanvas();
+  hst_zminDRW_correct->Draw();
+  can44->SaveAs("1DDistPlots/plot_zminDRW_correct.png");
+
+  TCanvas *can45 = new TCanvas();
+  hst_zDRj1j2_correct->Draw();
+  can45->SaveAs("1DDistPlots/plot_zDRj1j2_correct.png");
+
+  TCanvas *can46 = new TCanvas();
+  hst_mHRightLepton->GetXaxis()->SetTitle("M(q,q,l)");
+  hst_mHRightLepton->GetYaxis()->SetTitle("N Events");
+  hst_mHRightLepton->SetTitle("Visible M for Right & Wrong Lepton");
+  hst_mHWrongLepton->SetLineColor(kRed);
+  hst_mHRightLepton->Draw();
+  hst_mHWrongLepton->Draw("SAME");
+
+  TLegend *leg46 = new TLegend(0.65,0.65,0.85,0.85);
+  leg46->AddEntry(hst_mHRightLepton,"Gen Quarks + Correct Lepton");
+  leg46->AddEntry(hst_mHWrongLepton,"Gen Quarks + Wrong Lepton");
+  leg46->Draw();
+  can46->SaveAs("1DDistPlots/plot_mHRightWrongLepton.png");
+
+  TCanvas *can47 = new TCanvas();
+  hst_HadTopPt->GetXaxis()->SetTitle("Pt");
+  hst_HadTopPt->GetYaxis()->SetTitle("N Events");
+  hst_HadTopPt->SetTitle("Hadronic Top Pt");
+  hst_HadTopPt->GetYaxis()->SetRangeUser(0,1500);
+  hst_HadTopPt->SetLineColor(kRed);
+  hst_HadTopPt->Draw();
+  hst_PtTop_recohtt->Draw("SAME");
+
+  TLegend *leg47 = new TLegend(0.65,0.65,0.85,0.85);
+  leg47->AddEntry(hst_PtTop_recohtt,"Reco");
+  leg47->AddEntry(hst_HadTopPt,"Gen");
+  leg47->Draw();
+  can47->SaveAs("1DDistPlots/plot_zzHadTopPtRecoGen.png");
+
+  TCanvas *can48 = new TCanvas();
+  hst_HadTopM->GetXaxis()->SetTitle("M");
+  hst_HadTopM->GetYaxis()->SetTitle("N Events");
+  hst_HadTopM->SetTitle("Hadronic Top M");
+  hst_HadTopM->SetLineColor(kRed);
+  hst_HadTopM->Draw();
+  hst_MTop_recohtt->Draw("SAME");
+
+  TLegend *leg48 = new TLegend(0.65,0.65,0.85,0.85);
+  leg48->AddEntry(hst_MTop_recohtt,"Reco");
+  leg48->AddEntry(hst_HadTopM,"Gen");
+  leg48->Draw();
+  can48->SaveAs("1DDistPlots/plot_zzHadTopMRecoGen.png");
+
+  TCanvas *can49 = new TCanvas();
+  hst_recogen_PtTop->GetXaxis()->SetTitle("Reco");
+  hst_recogen_PtTop->GetYaxis()->SetTitle("Gen");
+  hst_recogen_PtTop->SetTitle("HTT Reconstructed vs Generator Hadronic Top Pt");
+  hst_recogen_PtTop->Draw("colz");
+  can49->SaveAs("1DDistPlots/plot_zzrecogen_PtTop_2D.png");
+
+  TCanvas *can50 = new TCanvas();
+  hst_PtWFromTop_recohtt->GetXaxis()->SetTitle("Pt");
+  hst_PtWFromTop_recohtt->GetYaxis()->SetTitle("N Events");
+  hst_PtWFromTop_recohtt->SetTitle("W From Hadronic Top Pt");
+  hst_PtWFromTop_recohtt->GetYaxis()->SetRangeUser(0,3000);
+  hst_WFromHadTopPt->SetLineColor(kRed);
+  hst_WFromHiggsPt->SetLineColor(kGreen+2);
+  hst_PtWFromTop_recohtt->Draw();
+  hst_WFromHadTopPt->Draw("SAME");
+  hst_WFromHiggsPt->Draw("SAME");
+
+  TLegend *leg50 = new TLegend(0.65,0.65,0.85,0.85);
+  leg50->AddEntry(hst_PtWFromTop_recohtt,"Pt From non-B HTT Jets");
+  leg50->AddEntry(hst_WFromHadTopPt,"W From Hadronic Top");
+  leg50->AddEntry(hst_WFromHiggsPt,"Hadronic W From Higgs");
+  leg50->Draw();
+  can50->SaveAs("1DDistPlots/plot_zzWFromHadTopPt.png");
+
+  TCanvas *can51 = new TCanvas();
+  hst_MWFromTop_recohtt->GetXaxis()->SetTitle("M");
+  hst_MWFromTop_recohtt->GetYaxis()->SetTitle("N Events");
+  hst_MWFromTop_recohtt->SetTitle("W From Hadronic Top M");
+  hst_MWFromTop_recohtt->GetYaxis()->SetRangeUser(0,7000);
+  hst_WFromHadTopM->SetLineColor(kRed);
+  hst_WFromHiggsM->SetLineColor(kGreen+2);
+  hst_MWFromTop_recohtt->Draw();
+  hst_WFromHadTopM->Draw("SAME");
+  hst_WFromHiggsM->Draw("SAME");
+
+  TLegend *leg51 = new TLegend(0.65,0.65,0.85,0.85);
+  leg51->AddEntry(hst_MWFromTop_recohtt,"M From non-B HTT Jets");
+  leg51->AddEntry(hst_WFromHadTopM,"W From Hadronic Top");
+  leg51->AddEntry(hst_WFromHiggsM,"Hadronic W From Higgs");
+  leg51->Draw();
+  can51->SaveAs("1DDistPlots/plot_zzWFromHadTopM.png");
+
+  TCanvas *can52 = new TCanvas();
+  hst_NSelectedMatchesVsNJetFrac->GetXaxis()->SetTitle("N Jets");
+  hst_NSelectedMatchesVsNJetFrac->GetYaxis()->SetTitle("Fraction");
+  hst_NSelectedMatchesVsNJetFrac->SetTitle("(H->WW->qqlnu NEvents w/ 2 quarks matched)/(H->WW->qqlnu NEvents)");
+  hst_NSelectedMatchesVsNJetFrac->GetYaxis()->SetRangeUser(0,1.2);
+  hst_NSelectedMatchesVsNJetFrac->SetLineColor(kRed);
+  hst_NSelectedMatchesVsNJetFrac->Draw();
+  can52->SaveAs("1DDistPlots/plot_NSelectedMatchesVsNJetFrac.png");
+
+  TCanvas *can53 = new TCanvas();
+  hst_WFromTop_2leps_delr->GetXaxis()->SetTitle("DelR(RightLepton,HadronicTop");
+  hst_WFromTop_2leps_delr->GetYaxis()->SetTitle("DelR(WrongLepton,HadronicTop");
+  hst_WFromTop_2leps_delr->SetTitle("DelR Hadronic Tops & Lepton");
+  hst_WFromTop_2leps_delr->Draw("colz");
+  can53->SaveAs("1DDistPlots/plot_WFromTop_2leps_delr.png");
+
+}
