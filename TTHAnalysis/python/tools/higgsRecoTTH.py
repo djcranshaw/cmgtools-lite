@@ -638,6 +638,7 @@ class HiggsRecoTTH(Module):
 #                    goodlepidx = 0
 #            print("goodlepidx: "+str(goodlepidx))
             rightlepnow = -1
+            wronglepnow = -1
             if (len(QFromWFromH)==2 and len(LFromWFromH)==1):
                 ilist=[i[0] for i in sorted(enumerate(lepsFO),key=lambda x:x[1].p4().DeltaR(LFromWFromH[0].p4()))]
                 rightlepnow = ilist[0]
@@ -763,8 +764,10 @@ class HiggsRecoTTH(Module):
                     mindlW = W.DeltaR(lep)
                     rightlep = 0 if len(LFromWFromH)==1 and len(QFromWFromH)==2 and LFromWFromH[0].p4().DeltaR(lep) < 0.25 else 1
 #                    goodchoicelep = 0 if _lep==goodlepidx else 1
-                    goodchoicelep = 0 if _lep==rightlepnow else 1
+#                    goodchoicelep = 0 if _lep==rightlepnow else 1
                     hasnomedb = 0 if jetsNoTopNoB[_cj].btagDeepB < 0.0614 and jetsNoTopNoB[_fj].btagDeepB < 0.0614 else 1
+                    nearerlep = rightlepnow if WFromTop_rightlep_delr < WFromTop_wronglep_delr else wronglepnow;
+                    goodchoicelep = 0 if _lep==nearerlep else 1
 #                    rightlep = 0
 #                    delR_j2W = abs((j1.Pt()-j2.Pt())/(j1.Pt()+j2.Pt()))
 #                    delR_j2W = delpT_recovis_genvis
