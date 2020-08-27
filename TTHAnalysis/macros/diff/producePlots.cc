@@ -1,4 +1,34 @@
-{
+void computeCorrelation (TTree *ft, float &x, float &y, double &corr, double &slope, double &intercept, int &cut1, int cut1val, int &cut2, int cut2val, int &cut3, int cut3val, int &cut4, int cut4val) {
+  double NN;
+  double xx;
+  double yy;
+  double xxxx;
+  double xxyy;
+  double yyyy;
+  NN = 0;
+  xx = 0;
+  yy = 0;
+  xxxx = 0;
+  xxyy = 0;
+  yyyy = 0;
+  for (int i=0; i<ft->GetEntries(); i++)
+  {
+    ft->GetEntry(i);
+    if (cut1 != cut1val || cut2 != cut2val || cut3 != cut3val || cut4 != cut4val) continue;
+    if (x < 0 || y < 0) continue;
+    NN ++;
+    xx += x;
+    yy += y;
+    xxxx += x*x;
+    xxyy += x*y;
+    yyyy += y*y;
+  }
+  corr  = (NN*xxyy - xx*yy)/sqrt((NN*xxxx-xx*xx)*(NN*yyyy-yy*yy));
+  slope = (NN*xxyy - xx*yy)/(NN*xxxx - xx*xx);
+  intercept = yy/NN - (slope*xx)/(corr*NN);
+}
+
+void producePlots() {
   // *** Constants ***
   const int nBins = 100;
   const double Offset = 1.2;
@@ -178,6 +208,8 @@
   float Hreco_htt_MWFromTop;
   float Hreco_htt_HadTop_rightlep_delr;
   float Hreco_htt_HadTop_wronglep_delr;
+  float Hreco_FirstLepPt;
+  float Hreco_SecondLepPt;
 
   // delR and closest jet vars
   float Hreco_delR_H_q1l;
@@ -211,8 +243,14 @@
   float Hreco_quark2Flavour;
   int   Hreco_both_selected_jets_matched;
   float Hreco_inv_mass_jm1jm2;
+  int   Hreco_rightlepidx;
+  int   Hreco_wronglepidx;
   float Hreco_mHrightlep;
   float Hreco_mHwronglep;
+  float Hreco_minDRrightlep;
+  float Hreco_minDRwronglep;
+  int   Hreco_closelepidx;
+  int   Hreco_farlepidx;
 
   // kinematics of hadronic tops
   float Hreco_HadT_pt[4];
@@ -240,6 +278,8 @@
   ft->SetBranchAddress("Hreco_htt_MWFromTop",&Hreco_htt_MWFromTop);
   ft->SetBranchAddress("Hreco_htt_HadTop_rightlep_delr",&Hreco_htt_HadTop_rightlep_delr);
   ft->SetBranchAddress("Hreco_htt_HadTop_wronglep_delr",&Hreco_htt_HadTop_wronglep_delr);
+  ft->SetBranchAddress("Hreco_FirstLepPt",&Hreco_FirstLepPt);
+  ft->SetBranchAddress("Hreco_SecondLepPt",&Hreco_SecondLepPt);
 
   // delR and closest jet vars
   ft->SetBranchAddress("Hreco_delR_H_q1l",&Hreco_delR_H_q1l);
@@ -273,8 +313,15 @@
   ft->SetBranchAddress("Hreco_quark2Flavour",&Hreco_quark2Flavour);
   ft->SetBranchAddress("Hreco_both_selected_jets_matched",&Hreco_both_selected_jets_matched);
   ft->SetBranchAddress("Hreco_inv_mass_jm1jm2",&Hreco_inv_mass_jm1jm2);
+  ft->SetBranchAddress("Hreco_rightlepidx",&Hreco_rightlepidx);
+  ft->SetBranchAddress("Hreco_wronglepidx",&Hreco_wronglepidx);
   ft->SetBranchAddress("Hreco_mHrightlep",&Hreco_mHrightlep);
   ft->SetBranchAddress("Hreco_mHwronglep",&Hreco_mHwronglep);
+  ft->SetBranchAddress("Hreco_minDRrightlep",&Hreco_minDRrightlep);
+  ft->SetBranchAddress("Hreco_minDRwronglep",&Hreco_minDRwronglep);
+  ft->SetBranchAddress("Hreco_closelepidx",&Hreco_closelepidx);
+  ft->SetBranchAddress("Hreco_farlepidx",&Hreco_farlepidx);
+
   ft->SetBranchAddress("Hreco_HadT_pt",&Hreco_HadT_pt);
   ft->SetBranchAddress("Hreco_HadT_mass",&Hreco_HadT_mass);
   ft->SetBranchAddress("Hreco_WFromHadT_pt",&Hreco_WFromHadT_pt);
@@ -348,6 +395,22 @@
   TH2D *hst_mjjVsdRjj = new TH2D("hst_mjjVsdRjj","hst_mjjVsdRjj",25,-0.5,139.5,25,0,8);
   TH2D *hst_mqqVsdRqq = new TH2D("hst_mqqVsdRqq","hst_mqqVsdRqq",25,-0.5,139.5,25,0,8);
 
+  TH2D *hst_visRecoVsGen = new TH2D("hst_visRecoVsGen","hst_visRecoVsGen",25,-0.5,499.5,25,-0.5,499.5);
+
+  TH1D *hst_lepDeltaPtRight = new TH1D("hst_lepDeltaPtRight","hst_lepDeltaPtRight",100,-0.5,199.5);
+  TH1D *hst_lepDeltaPtWrong = new TH1D("hst_lepDeltaPtWrong","hst_lepDeltaPtWrong",100,-0.5,199.5);
+  TH1D *hst_lepPtResRight = new TH1D("hst_lepPtResRight","hst_lepPtResRight",100,0,3);
+  TH1D *hst_lepPtResWrong = new TH1D("hst_lepPtResWrong","hst_lepPtResWrong",100,0,3);
+  TH1D *hst_LJDeltaRRight = new TH1D("hst_LJDeltaRRight","hst_LJDeltaRRight",100,0,3.2);
+  TH1D *hst_LJDeltaRWrong = new TH1D("hst_LJDeltaRWrong","hst_LJDeltaRWrong",100,0,3.2);
+
+  TH1D *hst_lepDeltaPtRight_Conflict = new TH1D("hst_lepDeltaPtRight_Conflict","hst_lepDeltaPtRight_Conflict",100,-0.5,199.5);
+  TH1D *hst_lepDeltaPtWrong_Conflict = new TH1D("hst_lepDeltaPtWrong_Conflict","hst_lepDeltaPtWrong_Conflict",100,-0.5,199.5);
+  TH1D *hst_lepPtResRight_Conflict = new TH1D("hst_lepPtResRight_Conflict","hst_lepPtResRight_Conflict",100,0,3);
+  TH1D *hst_lepPtResWrong_Conflict = new TH1D("hst_lepPtResWrong_Conflict","hst_lepPtResWrong_Conflict",100,0,3);
+  TH1D *hst_LJDeltaRRight_Conflict = new TH1D("hst_LJDeltaRRight_Conflict","hst_LJDeltaRRight_Conflict",100,0,3.2);
+  TH1D *hst_LJDeltaRWrong_Conflict = new TH1D("hst_LJDeltaRWrong_Conflict","hst_LJDeltaRWrong_Conflict",100,0,3.2);
+
 // *** Declare Counts ***
   const int nFMBins = 80;
   const int dRMax   = 2;
@@ -370,12 +433,16 @@
       nEventsQ2Total[i][j] = 0;
     }
   }
+  int nRightLepChosen = 0;
+  int nWrongLepChosen = 0;
+  int nLepChosen = 0;
   for (int i=0; i<ft->GetEntries(); i++)
   {
     ft->GetEntry(i);
     // Calculate Counts
     if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
-    if (Hreco_nQFromWFromH != 2) continue;
+    if (Hreco_nFO != 2) continue;
+//    if (Hreco_nHadT != 1 || Hreco_nLepT != 1) continue;
     bool Q1Match = Hreco_closestJet_delR_ToQ1FromWFromH != -99 && Hreco_closestJet_delR_ToQ1FromWFromH < 0.3 && abs(Hreco_closestJet_ptres_ToQ1FromWFromH) < 0.6;
     bool Q2Match = Hreco_closestJet_delR_ToQ2FromWFromH != -99 && Hreco_closestJet_delR_ToQ2FromWFromH < 0.3 && abs(Hreco_closestJet_ptres_ToQ2FromWFromH) < 0.6;
     bool uniqueJetMatch = Q1Match && Q2Match && Hreco_closestJet_pt_ToQ1FromWFromH != Hreco_closestJet_pt_ToQ2FromWFromH;
@@ -385,6 +452,9 @@
     if (Q1Match && Hreco_pTHvis != -99) nEventsJetMatchesQ1 ++;
     if (Q2Match && Hreco_pTHvis != -99) nEventsJetMatchesQ2 ++;
     if (uniqueJetMatch && Hreco_pTHvis != -99) nEvents2UniqueMatchedJets ++;
+    if (Hreco_rightlepidx != -99 && Hreco_rightlepidx == Hreco_lepIdx) nRightLepChosen ++;
+    if (Hreco_wronglepidx != -99 && Hreco_wronglepidx == Hreco_lepIdx) nWrongLepChosen ++;
+    nLepChosen ++;
 
     // Plot matching efficiency vs quark pt & eta
     if (Hreco_quark1pT != -99) hst_Q1VsPt->Fill(Hreco_quark1pT);
@@ -475,120 +545,72 @@
     hst_nFO->Fill(Hreco_nFO);
     hst_nJetsAfterCuts->Fill(Hreco_nJetsAfterCuts);
 
+    // Plot 2D reco vs gen histogram
+    if (Hreco_pTHvis != -99 && Hreco_pTTrueGen != -99) hst_visRecoVsGen->Fill(Hreco_pTHvis,Hreco_pTTrueGen);
+
+    // Plot DeltaPt between leptons
+    int softidx = 1;
+    int hardidx = 0;
+    if (Hreco_FirstLepPt < Hreco_SecondLepPt) {
+        softidx = 0;
+        hardidx = 1;
+    }
+    if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
+    if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
+    if (Hreco_rightlepidx == softidx) hst_lepPtResRight->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
+    if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
+    if (Hreco_rightlepidx == Hreco_closelepidx) hst_LJDeltaRRight->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+    if (Hreco_rightlepidx != Hreco_closelepidx) hst_LJDeltaRWrong->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+
+    if ((Hreco_rightlepidx == softidx && Hreco_rightlepidx != Hreco_closelepidx) || (Hreco_rightlepidx == hardidx && Hreco_rightlepidx == Hreco_closelepidx)) {
+      if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight_Conflict->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
+      if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong_Conflict->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
+      if (Hreco_rightlepidx == softidx) hst_lepPtResRight_Conflict->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
+      if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong_Conflict->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
+      if (Hreco_rightlepidx == Hreco_closelepidx) hst_LJDeltaRRight_Conflict->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+      if (Hreco_rightlepidx != Hreco_closelepidx) hst_LJDeltaRWrong_Conflict->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+    }
+
   }
 
-  // Compute correlations (perhaps this should be moved into a function)
-  // xx: pTHVisReco
-  // yy: pTHVisGen
-  // zz: pTHFullGen
-  double NN;
-  double xx;
-  double yy;
-  double zz;
-  double xxxx;
-  double xxyy;
-  double xxzz;
-  double yyyy;
-  double yyzz;
-  double zzzz;
-  NN = 0;
-  xx = 0;
-  yy = 0;
-  xxxx = 0;
-  xxyy = 0;
-  yyyy = 0;
-  for (int i=0; i<ft->GetEntries(); i++)
-  {
-    ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
-    if (Hreco_pTHvis < 0 || Hreco_pTTrueGen < 0) continue;
-    NN ++;
-    xx += Hreco_pTHvis;
-    yy += Hreco_pTTrueGen;
-    xxxx += Hreco_pTHvis*Hreco_pTHvis;
-    xxyy += Hreco_pTHvis*Hreco_pTTrueGen;
-    yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
-  }
-  double recogencorr = (NN*xxyy - xx*yy)/sqrt((NN*xxxx-xx*xx)*(NN*yyyy-yy*yy));
-
-  NN = 0;
-  yy = 0;
-  zz = 0;
-  yyyy = 0;
-  yyzz = 0;
-  zzzz = 0;
-  for (int i=0; i<ft->GetEntries(); i++)
-  {
-    ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
-    if (Hreco_pTTrueGen < 0 || Hreco_pTHgen < 0) continue;
-    NN ++;
-    yy += Hreco_pTTrueGen;
-    zz += Hreco_pTHgen;
-    yyyy += Hreco_pTTrueGen*Hreco_pTTrueGen;
-    yyzz += Hreco_pTTrueGen*Hreco_pTHgen;
-    zzzz += Hreco_pTHgen*Hreco_pTHgen;
-  }
-  double visfullcorr = (NN*yyzz - yy*zz)/sqrt((NN*yyyy-yy*yy)*(NN*zzzz-zz*zz));
-
-  NN = 0;
-  xx = 0;
-  zz = 0;
-  xxxx = 0;
-  xxzz = 0;
-  zzzz = 0;
-  for (int i=0; i<ft->GetEntries(); i++)
-  {
-    ft->GetEntry(i);
-    if (Hreco_nQFromWFromH != 2 || Hreco_nLFromWFromH != 1) continue;
-    if (Hreco_pTHvis < 0 || Hreco_pTHgen < 0) continue;
-    NN ++;
-    xx += Hreco_pTHvis;
-    zz += Hreco_pTHgen;
-    xxxx += Hreco_pTHvis*Hreco_pTHvis;
-    xxzz += Hreco_pTHvis*Hreco_pTHgen;
-    zzzz += Hreco_pTHgen*Hreco_pTHgen;
-  }
-  double totalcorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
-
-  NN = 0;
-  xx = 0;
-  zz = 0;
-  xxxx = 0;
-  xxzz = 0;
-  zzzz = 0;
-  for (int i=0; i<ft->GetEntries(); i++)
-  {
-    ft->GetEntry(i);
-    if (Hreco_pTHvis < 0 || Hreco_pTHgen < 0) continue;
-    NN ++;
-    xx += Hreco_pTHvis;
-    zz += Hreco_pTHgen;
-    xxxx += Hreco_pTHvis*Hreco_pTHvis;
-    xxzz += Hreco_pTHvis*Hreco_pTHgen;
-    zzzz += Hreco_pTHgen*Hreco_pTHgen;
-  }
-  double totalcorrnocuts   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
-
-  NN = 0;
-  xx = 0;
-  zz = 0;
-  xxxx = 0;
-  xxzz = 0;
-  zzzz = 0;
-  for (int i=0; i<ft->GetEntries(); i++)
-  {
-    ft->GetEntry(i);
-    if (Hreco_htt_PtTop < 0 || Hreco_HadT_pt[0] < 0) continue;
-    NN ++;
-    xx += Hreco_htt_PtTop;
-    zz += Hreco_HadT_pt[0];
-    xxxx += Hreco_htt_PtTop*Hreco_htt_PtTop;
-    xxzz += Hreco_htt_PtTop*Hreco_HadT_pt[0];
-    zzzz += Hreco_HadT_pt[0]*Hreco_HadT_pt[0];
-  }
-  double TopPtCorr   = (NN*xxzz - xx*zz)/sqrt((NN*xxxx-xx*xx)*(NN*zzzz-zz*zz));
-
+  // Compute correlations 
+  int nocut = 0;
+  double recogencorr, recogenslope, recogenintercept;
+  computeCorrelation(ft,Hreco_pTHvis,Hreco_pTTrueGen,recogencorr,recogenslope,recogenintercept,
+                        Hreco_nQFromWFromH,2,
+                        Hreco_nLFromWFromH,1,
+                        Hreco_nFO,2, //nocut,nocut, //Hreco_nHadT,1,
+                        nocut,nocut //Hreco_nLepT,1
+                        );
+  double visfullcorr, visfullslope, visfullintercept;
+  computeCorrelation(ft,Hreco_pTTrueGen,Hreco_pTHgen,visfullcorr,visfullslope,visfullintercept,
+                        Hreco_nQFromWFromH,2,
+                        Hreco_nLFromWFromH,1,
+                        Hreco_nFO,2, //nocut,nocut, //Hreco_nHadT,1,
+                        nocut,nocut //Hreco_nLepT,1
+                        );
+  double totalcorr, totalslope, totalintercept;
+  computeCorrelation(ft,Hreco_pTHvis,Hreco_pTHgen,totalcorr,totalslope,totalintercept,
+                        Hreco_nQFromWFromH,2,
+                        Hreco_nLFromWFromH,1,
+                        Hreco_nFO,2, //nocut,nocut, //Hreco_nHadT,1,
+                        nocut,nocut  //Hreco_nLepT,1
+                        );
+  double totalcorrnocuts, totalslopenocuts, totalinterceptnocuts;
+  computeCorrelation(ft,Hreco_pTHvis,Hreco_pTHgen,totalcorrnocuts,totalslopenocuts,totalinterceptnocuts,
+                        nocut,nocut,
+                        nocut,nocut,
+                        nocut,nocut,
+                        nocut,nocut
+                        );
+  double TopPtCorr, TopPtSlope, TopPtIntercept;
+  computeCorrelation(ft,Hreco_htt_PtTop,Hreco_HadT_pt[0],TopPtCorr,TopPtSlope,TopPtIntercept,
+                        nocut,nocut,
+                        nocut,nocut,
+                        nocut,nocut,
+                        nocut,nocut
+                        ); 
+  
   // Populate 2D flavour matching histograms
   for (int i=0; i<nFMBins; i++) {
     for (int j=0; j<nFMBins; j++) {
@@ -670,12 +692,19 @@
   cout << "(*) + Has two jets, one of each matches quark 1 & 2 and" << endl;
   cout << "both jets are correctly selected by the algo:            " << hst_NSelectedMatchesVsNJet->GetEntries() << endl;
   cout << endl << "*** Correlations ***" << endl;
-  cout << "recogencorr:     " << recogencorr << endl;
-  cout << "visfullcorr:     " << visfullcorr << endl;
-  cout << "totalcorr:       " << totalcorr << endl;
-  cout << "totalcorrnocuts: " << totalcorrnocuts << endl;
-  cout << "TopPtCorr:       " << TopPtCorr << endl;
-  cout << endl << endl;
+  cout << "recogencorr:     " << recogencorr     << "\trecogenslope:      " << recogenslope
+       << "\tm/r: "           << recogenslope/recogencorr                   << "\trecogenintercept:     " << recogenintercept     << endl;
+  cout << "visfullcorr:     " << visfullcorr     << "\tvisfullslope:      " << visfullslope
+       << "\tm/r: "           << visfullslope/visfullcorr                   << "\tvisfullintercept:     " << visfullintercept     << endl;
+  cout << "totalcorr:       " << totalcorr       << "\ttotalslope:        " << totalslope
+       << "\tm/r: "           << totalslope/totalcorr                       << "\ttotalintercept:       " << totalintercept       << endl;
+  cout << "totalcorrnocuts: " << totalcorrnocuts << "\ttotalslopenocuts:  " << totalslopenocuts
+       << "\tm/r: "           << totalslopenocuts/totalcorrnocuts           << "\ttotalinterceptnocuts: " << totalinterceptnocuts << endl;
+  cout << "TopPtCorr:       " << TopPtCorr       << "\tTopPtSlope:        " << TopPtSlope
+       << "\tm/r: "           << TopPtSlope/TopPtCorr                       << "\tTopPtIntercept:       " << TopPtIntercept       << endl;
+  cout << endl << "*** Match Counts ***" << endl;
+  cout << "nRightLepChosen: " << nRightLepChosen << "/" << nLepChosen << endl;
+  cout << "nWrongLepChosen: " << nWrongLepChosen << "/" << nLepChosen << endl; 
 
   gSystem->Exec("mkdir 1DDistPlots");
   TString VetoString = TVet+BVet+"Veto";
@@ -1095,4 +1124,108 @@
   hst_HadTop_2leps_delr->Draw("colz");
   can30->SaveAs("1DDistPlots/plot_HadTop_2leps_delr.png");
 
+  TCanvas *can31 = new TCanvas();
+  hst_visRecoVsGen->GetXaxis()->SetTitle("Visible Reco Pt");
+  hst_visRecoVsGen->GetYaxis()->SetTitle("Visible Gen Pt");
+  hst_visRecoVsGen->SetTitle("Reco Vs Gen Visible Pt");
+  hst_visRecoVsGen->Draw("colz");
+  can31->SaveAs("1DDistPlots/plot_visRecoVsGen.png");
+
+  TCanvas *can32 = new TCanvas();
+  hst_lepDeltaPtRight->SetLineColor(kBlue);
+  hst_lepDeltaPtWrong->SetLineColor(kRed);
+  hst_lepDeltaPtRight->GetXaxis()->SetTitle("Delta Pt");
+  hst_lepDeltaPtRight->GetYaxis()->SetTitle("Event Fraction");
+  hst_lepDeltaPtRight->SetTitle("Delta Pt in Leptons");
+  hst_lepDeltaPtRight->Draw("HIST");
+  hst_lepDeltaPtWrong->Draw("HIST SAME");
+
+  TLegend *leg32 = new TLegend(0.65,0.65,0.85,0.85);
+  leg32->AddEntry(hst_lepDeltaPtRight,"Closest Lepton is Right");
+  leg32->AddEntry(hst_lepDeltaPtWrong,"Closest Lepton is Wrong");
+  leg32->Draw();
+  can32->SaveAs("1DDistPlots/plot_lepDeltaPt.png");
+  cout << "hst_lepDeltaPtRight: " << hst_lepDeltaPtRight->GetEntries() << endl;
+  cout << "hst_lepDeltaPtWrong: " << hst_lepDeltaPtWrong->GetEntries() << endl;
+
+  TCanvas *can33 = new TCanvas();
+  hst_lepPtResRight->SetLineColor(kBlue);
+  hst_lepPtResWrong->SetLineColor(kRed);
+  hst_lepPtResRight->GetXaxis()->SetTitle("Delta Pt / Mean Pt");
+  hst_lepPtResRight->GetYaxis()->SetTitle("Event Fraction");
+  hst_lepPtResRight->SetTitle("PtRes in Leptons");
+  hst_lepPtResRight->Draw("HIST");
+  hst_lepPtResWrong->Draw("HIST SAME");
+
+  TLegend *leg33 = new TLegend(0.65,0.65,0.85,0.85);
+  leg33->AddEntry(hst_lepPtResRight,"Softest Lepton is Right");
+  leg33->AddEntry(hst_lepPtResWrong,"Softest Lepton is Wrong");
+  leg33->Draw();
+  can33->SaveAs("1DDistPlots/plot_lepPtRes.png");
+  
+  TCanvas *can34 = new TCanvas();
+  hst_LJDeltaRRight->SetLineColor(kBlue);
+  hst_LJDeltaRWrong->SetLineColor(kRed);
+  hst_LJDeltaRRight->GetXaxis()->SetTitle("Delta R Jet-Lep");
+  hst_LJDeltaRRight->GetYaxis()->SetTitle("Event Fraction");
+  hst_LJDeltaRRight->SetTitle("DelR(l,j)");
+  hst_LJDeltaRRight->Draw("HIST");
+  hst_LJDeltaRWrong->Draw("HIST SAME");
+
+  TLegend *leg34 = new TLegend(0.65,0.65,0.85,0.85);
+  leg34->AddEntry(hst_LJDeltaRRight,"Closest Lepton is Right");
+  leg34->AddEntry(hst_LJDeltaRWrong,"Closest Lepton is Wrong");
+  leg34->Draw();
+  can34->SaveAs("1DDistPlots/plot_LJDeltaR.png");
+  cout << "hst_LJDeltaRRight: " << hst_LJDeltaRRight->GetEntries() << endl;
+  cout << "hst_LJDeltaRWrong: " << hst_LJDeltaRWrong->GetEntries() << endl;
+
+  TCanvas *can35 = new TCanvas();
+  hst_lepDeltaPtRight_Conflict->SetLineColor(kBlue);
+  hst_lepDeltaPtWrong_Conflict->SetLineColor(kRed);
+  hst_lepDeltaPtRight_Conflict->GetXaxis()->SetTitle("Delta Pt");
+  hst_lepDeltaPtRight_Conflict->GetYaxis()->SetTitle("Event Fraction");
+  hst_lepDeltaPtRight_Conflict->SetTitle("Delta Pt in Leptons (Conflict)");
+  hst_lepDeltaPtRight_Conflict->Draw("HIST");
+  hst_lepDeltaPtWrong_Conflict->Draw("HIST SAME");
+
+  TLegend *leg35 = new TLegend(0.65,0.65,0.85,0.85);
+  leg35->AddEntry(hst_lepDeltaPtRight_Conflict,"Closest Lepton is Right");
+  leg35->AddEntry(hst_lepDeltaPtWrong_Conflict,"Closest Lepton is Wrong");
+  leg35->Draw();
+  can35->SaveAs("1DDistPlots/plot_lepDeltaPt_Conflict.png");
+  cout << "hst_lepDeltaPtRight_Conflict: " << hst_lepDeltaPtRight_Conflict->GetEntries() << endl;
+  cout << "hst_lepDeltaPtWrong_Conflict: " << hst_lepDeltaPtWrong_Conflict->GetEntries() << endl;
+
+  TCanvas *can36 = new TCanvas();
+  hst_lepPtResRight_Conflict->SetLineColor(kBlue);
+  hst_lepPtResWrong_Conflict->SetLineColor(kRed);
+  hst_lepPtResRight_Conflict->GetXaxis()->SetTitle("Delta Pt / Mean Pt");
+  hst_lepPtResRight_Conflict->GetYaxis()->SetTitle("Event Fraction");
+  hst_lepPtResRight_Conflict->SetTitle("PtRes in Leptons (Conflict)");
+  hst_lepPtResRight_Conflict->Draw("HIST");
+  hst_lepPtResWrong_Conflict->Draw("HIST SAME");
+
+  TLegend *leg36 = new TLegend(0.65,0.65,0.85,0.85);
+  leg36->AddEntry(hst_lepPtResRight_Conflict,"Softest Lepton is Right");
+  leg36->AddEntry(hst_lepPtResWrong_Conflict,"Softest Lepton is Wrong");
+  leg36->Draw();
+  can36->SaveAs("1DDistPlots/plot_lepPtRes_Conflict.png");
+  
+  TCanvas *can37 = new TCanvas();
+  hst_LJDeltaRRight_Conflict->SetLineColor(kBlue);
+  hst_LJDeltaRWrong_Conflict->SetLineColor(kRed);
+  hst_LJDeltaRRight_Conflict->GetXaxis()->SetTitle("Delta R Jet-Lep");
+  hst_LJDeltaRRight_Conflict->GetYaxis()->SetTitle("Event Fraction");
+  hst_LJDeltaRRight_Conflict->SetTitle("DelR(l,j) (Conflict)");
+  hst_LJDeltaRRight_Conflict->Draw("HIST");
+  hst_LJDeltaRWrong_Conflict->Draw("HIST SAME");
+
+  TLegend *leg37 = new TLegend(0.65,0.65,0.85,0.85);
+  leg37->AddEntry(hst_LJDeltaRRight_Conflict,"Closest Lepton is Right");
+  leg37->AddEntry(hst_LJDeltaRWrong_Conflict,"Closest Lepton is Wrong");
+  leg37->Draw();
+  can37->SaveAs("1DDistPlots/plot_LJDeltaR_Conflict.png");
+  cout << "hst_LJDeltaRRight_Conflict: " << hst_LJDeltaRRight_Conflict->GetEntries() << endl;
+  cout << "hst_LJDeltaRWrong_Conflict: " << hst_LJDeltaRWrong_Conflict->GetEntries() << endl;
 }
