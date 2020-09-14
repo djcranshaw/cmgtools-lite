@@ -404,4 +404,5 @@ higgsDiffCompTTH_noWmassConstraint = lambda : HiggsDiffCompTTH(label="Hreco_",
                                              use_Wmass_constraint = False,
                                              attemptDisentangling = True,
                                              btagDeepCSVveto = 'M', # or 'M'
+                                             doSystJEC=True,
                                              useTopTagger=False)

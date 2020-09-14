@@ -1203,6 +1203,7 @@ void producePlots() {
   hst_lepPtResRight_Conflict->GetXaxis()->SetTitle("Delta Pt / Mean Pt");
   hst_lepPtResRight_Conflict->GetYaxis()->SetTitle("Event Fraction");
   hst_lepPtResRight_Conflict->SetTitle("PtRes in Leptons (Conflict)");
+  hst_lepPtResRight_Conflict->GetYaxis()->SetRangeUser(0,500);
   hst_lepPtResRight_Conflict->Draw("HIST");
   hst_lepPtResWrong_Conflict->Draw("HIST SAME");
 
