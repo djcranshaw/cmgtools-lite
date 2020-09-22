@@ -208,8 +208,10 @@ void producePlots() {
   float Hreco_htt_MWFromTop;
   float Hreco_htt_HadTop_rightlep_delr;
   float Hreco_htt_HadTop_wronglep_delr;
-  float Hreco_FirstLepPt;
-  float Hreco_SecondLepPt;
+  float Hreco_Lep1Pt;
+  float Hreco_Lep2Pt;
+  float Hreco_Lep1MinDR;
+  float Hreco_Lep2MinDR;
 
   // delR and closest jet vars
   float Hreco_delR_H_q1l;
@@ -247,10 +249,6 @@ void producePlots() {
   int   Hreco_wronglepidx;
   float Hreco_mHrightlep;
   float Hreco_mHwronglep;
-  float Hreco_minDRrightlep;
-  float Hreco_minDRwronglep;
-  int   Hreco_closelepidx;
-  int   Hreco_farlepidx;
 
   // kinematics of hadronic tops
   float Hreco_HadT_pt[4];
@@ -278,8 +276,11 @@ void producePlots() {
   ft->SetBranchAddress("Hreco_htt_MWFromTop",&Hreco_htt_MWFromTop);
   ft->SetBranchAddress("Hreco_htt_HadTop_rightlep_delr",&Hreco_htt_HadTop_rightlep_delr);
   ft->SetBranchAddress("Hreco_htt_HadTop_wronglep_delr",&Hreco_htt_HadTop_wronglep_delr);
-  ft->SetBranchAddress("Hreco_FirstLepPt",&Hreco_FirstLepPt);
-  ft->SetBranchAddress("Hreco_SecondLepPt",&Hreco_SecondLepPt);
+  ft->SetBranchAddress("Hreco_Lep1Pt",&Hreco_Lep1Pt);
+  ft->SetBranchAddress("Hreco_Lep2Pt",&Hreco_Lep2Pt);
+  ft->SetBranchAddress("Hreco_Lep1MinDR",&Hreco_Lep1MinDR);
+  ft->SetBranchAddress("Hreco_Lep2MinDR",&Hreco_Lep2MinDR);
+  
 
   // delR and closest jet vars
   ft->SetBranchAddress("Hreco_delR_H_q1l",&Hreco_delR_H_q1l);
@@ -317,10 +318,6 @@ void producePlots() {
   ft->SetBranchAddress("Hreco_wronglepidx",&Hreco_wronglepidx);
   ft->SetBranchAddress("Hreco_mHrightlep",&Hreco_mHrightlep);
   ft->SetBranchAddress("Hreco_mHwronglep",&Hreco_mHwronglep);
-  ft->SetBranchAddress("Hreco_minDRrightlep",&Hreco_minDRrightlep);
-  ft->SetBranchAddress("Hreco_minDRwronglep",&Hreco_minDRwronglep);
-  ft->SetBranchAddress("Hreco_closelepidx",&Hreco_closelepidx);
-  ft->SetBranchAddress("Hreco_farlepidx",&Hreco_farlepidx);
 
   ft->SetBranchAddress("Hreco_HadT_pt",&Hreco_HadT_pt);
   ft->SetBranchAddress("Hreco_HadT_mass",&Hreco_HadT_mass);
@@ -410,6 +407,14 @@ void producePlots() {
   TH1D *hst_lepPtResWrong_Conflict = new TH1D("hst_lepPtResWrong_Conflict","hst_lepPtResWrong_Conflict",100,0,3);
   TH1D *hst_LJDeltaRRight_Conflict = new TH1D("hst_LJDeltaRRight_Conflict","hst_LJDeltaRRight_Conflict",100,0,3.2);
   TH1D *hst_LJDeltaRWrong_Conflict = new TH1D("hst_LJDeltaRWrong_Conflict","hst_LJDeltaRWrong_Conflict",100,0,3.2);
+
+  float binsx[] = { 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 7.0 };
+  float binsy[] = { -5.0, -2.0, -1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 2.0, 5.0 };
+  
+  TH2D *hst_ptrat_deltamindr_template_num = new TH2D("hst_ptrat_deltamindr_template_num","hst_ptrat_deltamindr_template_num",11,binsx,14,binsy);
+  TH2D *hst_ptrat_deltamindr_template_den = new TH2D("hst_ptrat_deltamindr_template_den","hst_ptrat_deltamindr_template_den",11,binsx,14,binsy);
+  TH2D *hst_ptrat_deltamindr_template_rat = new TH2D("hst_ptrat_deltamindr_template_rat","hst_ptrat_deltamindr_template_rat",11,binsx,14,binsy);
+  TH2D *hst_ptrat_deltamindr_template_cut = new TH2D("hst_ptrat_deltamindr_template_cut","hst_ptrat_deltamindr_template_cut",11,binsx,14,binsy);
 
 // *** Declare Counts ***
   const int nFMBins = 80;
@@ -551,28 +556,72 @@ void producePlots() {
     // Plot DeltaPt between leptons
     int softidx = 1;
     int hardidx = 0;
-    if (Hreco_FirstLepPt < Hreco_SecondLepPt) {
-        softidx = 0;
-        hardidx = 1;
+    double softpt = Hreco_Lep2Pt;
+    double hardpt = Hreco_Lep1Pt;
+    double softmindr = Hreco_Lep2MinDR;
+    double hardmindr = Hreco_Lep1MinDR;
+    int closeidx = 1;
+    int faridx   = 0;
+    double closept = Hreco_Lep2Pt;
+    double farpt   = Hreco_Lep1Pt;
+    double closemindr = Hreco_Lep2MinDR;
+    double farmindr   = Hreco_Lep1MinDR;
+    if (Hreco_Lep1Pt < Hreco_Lep2Pt) {
+      softidx = 0;
+      hardidx = 1;
+      softpt = Hreco_Lep1Pt;
+      hardpt = Hreco_Lep2Pt;
+      softmindr = Hreco_Lep1MinDR;
+      hardmindr = Hreco_Lep2MinDR;
     }
-    if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
-    if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
-    if (Hreco_rightlepidx == softidx) hst_lepPtResRight->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
-    if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
-    if (Hreco_rightlepidx == Hreco_closelepidx) hst_LJDeltaRRight->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
-    if (Hreco_rightlepidx != Hreco_closelepidx) hst_LJDeltaRWrong->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+    if (Hreco_Lep1MinDR < Hreco_Lep2MinDR) {
+      closeidx = 0;
+      faridx   = 1;
+      closept = Hreco_Lep1Pt;
+      farpt   = Hreco_Lep2Pt;
+      closemindr = Hreco_Lep1MinDR;
+      farmindr   = Hreco_Lep2MinDR;
+    }
+    if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight->Fill(abs(Hreco_Lep1Pt-Hreco_Lep2Pt));
+    if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong->Fill(abs(Hreco_Lep1Pt-Hreco_Lep2Pt));
+    if (Hreco_rightlepidx == softidx) hst_lepPtResRight->Fill(2*abs(Hreco_Lep1Pt-Hreco_Lep2Pt)/(Hreco_Lep1Pt+Hreco_Lep2Pt));
+    if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong->Fill(2*abs(Hreco_Lep1Pt-Hreco_Lep2Pt)/(Hreco_Lep1Pt+Hreco_Lep2Pt));
+    if (Hreco_rightlepidx == closeidx) hst_LJDeltaRRight->Fill(min(closemindr,farmindr));
+    if (Hreco_rightlepidx != closeidx) hst_LJDeltaRWrong->Fill(min(farmindr,closemindr));
 
-    if ((Hreco_rightlepidx == softidx && Hreco_rightlepidx != Hreco_closelepidx) || (Hreco_rightlepidx == hardidx && Hreco_rightlepidx == Hreco_closelepidx)) {
-      if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight_Conflict->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
-      if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong_Conflict->Fill(abs(Hreco_FirstLepPt-Hreco_SecondLepPt));
-      if (Hreco_rightlepidx == softidx) hst_lepPtResRight_Conflict->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
-      if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong_Conflict->Fill(2*abs(Hreco_FirstLepPt-Hreco_SecondLepPt)/(Hreco_FirstLepPt+Hreco_SecondLepPt));
-      if (Hreco_rightlepidx == Hreco_closelepidx) hst_LJDeltaRRight_Conflict->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
-      if (Hreco_rightlepidx != Hreco_closelepidx) hst_LJDeltaRWrong_Conflict->Fill(min(Hreco_minDRrightlep,Hreco_minDRwronglep));
+    if ((Hreco_rightlepidx == softidx && Hreco_rightlepidx != closeidx) || (Hreco_rightlepidx == hardidx && Hreco_rightlepidx == closeidx)) {
+      if (Hreco_rightlepidx == softidx) hst_lepDeltaPtRight_Conflict->Fill(abs(Hreco_Lep1Pt-Hreco_Lep2Pt));
+      if (Hreco_rightlepidx == hardidx) hst_lepDeltaPtWrong_Conflict->Fill(abs(Hreco_Lep1Pt-Hreco_Lep2Pt));
+      if (Hreco_rightlepidx == softidx) hst_lepPtResRight_Conflict->Fill(2*abs(Hreco_Lep1Pt-Hreco_Lep2Pt)/(Hreco_Lep1Pt+Hreco_Lep2Pt));
+      if (Hreco_rightlepidx == hardidx) hst_lepPtResWrong_Conflict->Fill(2*abs(Hreco_Lep1Pt-Hreco_Lep2Pt)/(Hreco_Lep1Pt+Hreco_Lep2Pt));
+      if (Hreco_rightlepidx == closeidx) hst_LJDeltaRRight_Conflict->Fill(min(closemindr,farmindr));
+      if (Hreco_rightlepidx != closeidx) hst_LJDeltaRWrong_Conflict->Fill(min(farmindr,closemindr));
     }
 
+    // Plot templates for lepton selection
+    if (closeidx == softidx) continue;
+    double ptrat = hardpt/softpt;
+    double deltamindr = hardmindr-softmindr;
+    hst_ptrat_deltamindr_template_num->Fill(ptrat,deltamindr,Hreco_rightlepidx == closeidx);
+    hst_ptrat_deltamindr_template_den->Fill(ptrat,deltamindr,1);
   }
-
+  double totalswitch = 0;
+  double scaleswitch = 0;
+  for (int i=1; i<=hst_ptrat_deltamindr_template_num->GetNbinsX(); i++) {
+    for (int j=1; j<=hst_ptrat_deltamindr_template_num->GetNbinsY(); j++) {
+      hst_ptrat_deltamindr_template_rat->SetBinContent(i,j,hst_ptrat_deltamindr_template_num->GetBinContent(i,j)/hst_ptrat_deltamindr_template_den->GetBinContent(i,j));
+      if (hst_ptrat_deltamindr_template_num->GetBinContent(i,j)==0) hst_ptrat_deltamindr_template_rat->SetBinContent(i,j,0);
+      if (hst_ptrat_deltamindr_template_rat->GetBinContent(i,j)<0.5) {
+        hst_ptrat_deltamindr_template_cut->SetBinContent(i,j,1);
+        totalswitch += hst_ptrat_deltamindr_template_num->GetBinContent(i,j);
+        scaleswitch += hst_ptrat_deltamindr_template_num->GetBinContent(i,j) * (1.0-hst_ptrat_deltamindr_template_rat->GetBinContent(i,j));
+      } else {
+        hst_ptrat_deltamindr_template_cut->SetBinContent(i,j,0); 
+      }
+    }
+  }
+  cout << "totalswitch: " << totalswitch << endl;
+  cout << "scaleswitch: " << scaleswitch << endl;
   // Compute correlations 
   int nocut = 0;
   double recogencorr, recogenslope, recogenintercept;
@@ -680,7 +729,7 @@ void producePlots() {
   // *** Print Counts ***
   cout << endl << "*** Print Counts For Chart***" << endl;
   cout << "No cuts:                                                 " << ft->GetEntries() << endl;
-  cout << "Is H->WW->qqlvH:                                         " << nHWWqqlv << endl;
+  cout << "Is H->WW->qqlv:                                          " << nHWWqqlv << endl;
   cout << "Has a jet that matches quark 1:                          " << nEventsJetMatchesQ1NoCond << endl;
   cout << "Has a jet that matches quark 2:                          " << nEventsJetMatchesQ2NoCond << endl;
   cout << "Has two jets, one of each matches quark 1 & 2:           " << nEvents2UniqueMatchedJetsNoCond << endl;
@@ -1229,4 +1278,26 @@ void producePlots() {
   can37->SaveAs("1DDistPlots/plot_LJDeltaR_Conflict.png");
   cout << "hst_LJDeltaRRight_Conflict: " << hst_LJDeltaRRight_Conflict->GetEntries() << endl;
   cout << "hst_LJDeltaRWrong_Conflict: " << hst_LJDeltaRWrong_Conflict->GetEntries() << endl;
+
+  TCanvas *can38 = new TCanvas();
+  hst_ptrat_deltamindr_template_rat->GetXaxis()->SetTitle("hardpt / softpt");
+  hst_ptrat_deltamindr_template_rat->GetYaxis()->SetTitle("hardmindr - softmindr");
+  hst_ptrat_deltamindr_template_rat->SetTitle("Fraction of time when closest lepton is correct");
+  hst_ptrat_deltamindr_template_rat->Draw("colz");
+  can38->SaveAs("1DDistPlots/plot_ptrat_deltamindr_template_rat.png");
+
+  TCanvas *can39 = new TCanvas();
+  hst_ptrat_deltamindr_template_den->GetXaxis()->SetTitle("hardpt / softpt");
+  hst_ptrat_deltamindr_template_den->GetYaxis()->SetTitle("hardmindr - softmindr");
+  hst_ptrat_deltamindr_template_den->SetTitle("Total Number of Events");
+  hst_ptrat_deltamindr_template_den->Draw("colz");
+  can39->SaveAs("1DDistPlots/plot_ptrat_deltamindr_template_den.png"); 
+  
+  TCanvas *can40 = new TCanvas();
+  hst_ptrat_deltamindr_template_cut->GetXaxis()->SetTitle("hardpt / softpt");
+  hst_ptrat_deltamindr_template_cut->GetYaxis()->SetTitle("hardmindr - softmindr");
+  hst_ptrat_deltamindr_template_cut->SetTitle("Bins where closest is usually incorrect");
+  hst_ptrat_deltamindr_template_cut->Draw("colz");
+  can40->SaveAs("1DDistPlots/plot_ptrat_deltamindr_template_cut.png");
+
 }

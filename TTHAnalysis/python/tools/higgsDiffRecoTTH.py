@@ -43,8 +43,10 @@ class HiggsDiffRecoTTH(Module):
             self.out.branch('%sDRj1l%s'%(self.label,jesLabel)            , 'F')
             self.out.branch('%sDRj2l%s'%(self.label,jesLabel)            , 'F')
             self.out.branch('%sBDThttTT_eventReco_mvaValue%s'%(self.label,jesLabel), 'F')
-            self.out.branch('%sFirstLepPt%s'%(self.label,jesLabel), 'F')
-            self.out.branch('%sSecondLepPt%s'%(self.label,jesLabel), 'F')
+            self.out.branch('%sLep1Pt%s'%(self.label,jesLabel), 'F')
+            self.out.branch('%sLep2Pt%s'%(self.label,jesLabel), 'F')
+            self.out.branch('%sLep1MinDR%s'%(self.label,jesLabel), 'F')
+            self.out.branch('%sLep2MinDR%s'%(self.label,jesLabel), 'F')
 
             # Counters
             self.out.branch('%snFatJetsNearLeptonFromHiggs%s'%(self.label,jesLabel) , 'I')
@@ -126,33 +128,14 @@ class HiggsDiffRecoTTH(Module):
             else:
                 jetsNoTopNoB = [j for j in jets if j.btagDeepB<btagvetoval]
 
-            # Add Pt of first two reco leps in collection (should fix this to something more sensible, with better branch name)
-            self.out.fillBranch('%sFirstLepPt%s'%(self.label,jesLabel)                    , leps[0].p4().Pt())
-            self.out.fillBranch('%sSecondLepPt%s'%(self.label,jesLabel)                   , leps[1].p4().Pt())
-
             # Additional logic to experiment with different algorithms
             goodlep = -99
             badlep  = -99
-            ilist=[i[0] for i in sorted(enumerate(leps),key=lambda x:x[1].p4().Pt())]
-            softlep = ilist[0]
-            hardlep = ilist[-1]
-            minDRL1 = 99
-            minDRL2 = 99
+            Lep1MinDR = 99
+            Lep2MinDR = 99
             for j in jetsNoTopNoB:
-                if j.p4().DeltaR(leps[0].p4()) < minDRL1 : minDRL1 = j.p4().DeltaR(leps[0].p4())
-                if j.p4().DeltaR(leps[1].p4()) < minDRL2 : minDRL2 = j.p4().DeltaR(leps[1].p4())
-            closelep = 0 if minDRL1 < minDRL2 else 1
-            farlep   = 1 if minDRL1 < minDRL2 else 0
-
-#            if closelep != softlep and min(minDRL1,minDRL2) > 0.8 :
-#                goodlep = softlep
-#                badlep = hardlep
-#                print("CLOSEST_TOO_FAR")
-
-#            if closelep != softlep and 2*abs(leps[softlep].p4().Pt()-leps[hardlep].p4().Pt())/(leps[softlep].p4().Pt()+leps[hardlep].p4().Pt()) > 1.0 :
-#                goodlep = softlep
-#                badlep = hardlep
-#                print("SOFTEST_TOO_SOFT")
+                if j.p4().DeltaR(leps[0].p4()) < Lep1MinDR : Lep1MinDR = j.p4().DeltaR(leps[0].p4())
+                if j.p4().DeltaR(leps[1].p4()) < Lep2MinDR : Lep2MinDR = j.p4().DeltaR(leps[1].p4())
 
             # Loop on the leptons and jets to check all lepton-jet-jet combinations and rank them
             for _lep,lep in [(ix,x.p4()) for ix,x in enumerate(leps)]:
@@ -200,7 +183,6 @@ class HiggsDiffRecoTTH(Module):
 
                     # Additional logic to experiment with different algorithms
                     lepchoice = 0 if _lep==goodlep else 1
-#                    lepchoice = 0
 
                     # Store all non-rejected candidates
                     mindR = min(lep.DeltaR(j1),lep.DeltaR(j2))
@@ -241,6 +223,10 @@ class HiggsDiffRecoTTH(Module):
             self.out.fillBranch('%sDRj1l%s'%(self.label,jesLabel)                      , DRj1l  )
             self.out.fillBranch('%sDRj2l%s'%(self.label,jesLabel)                      , DRj2l  )
             self.out.fillBranch('%sBDThttTT_eventReco_mvaValue%s'%(self.label,jesLabel), score  )
+            self.out.fillBranch('%sLep1Pt%s'%(self.label,jesLabel)                    , leps[0].p4().Pt())
+            self.out.fillBranch('%sLep2Pt%s'%(self.label,jesLabel)                   , leps[1].p4().Pt())
+            self.out.fillBranch('%sLep1MinDR%s'%(self.label,jesLabel)                   , Lep1MinDR)
+            self.out.fillBranch('%sLep2MinDR%s'%(self.label,jesLabel)                   , Lep2MinDR)
 
             # Counters
             self.out.fillBranch('%snLeptonsFromHiggs%s'%(self.label,jesLabel), len(ls))

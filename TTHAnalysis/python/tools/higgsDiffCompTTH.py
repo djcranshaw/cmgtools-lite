@@ -31,10 +31,6 @@ class HiggsDiffCompTTH(Module):
         
         self.out.branch('%srightlepidx'%self.label                                      , 'I')
         self.out.branch('%swronglepidx'%self.label                                      , 'I')
-        self.out.branch('%scloselepidx'%self.label                                      , 'I')
-        self.out.branch('%sfarlepidx'%self.label                                        , 'I')
-        self.out.branch('%sminDRrightlep'%self.label                                      , 'F')
-        self.out.branch('%sminDRwronglep'%self.label                                      , 'F')
 
         # Somehow dependent on JES
         for jesLabel in self.systsJEC.values():
@@ -150,23 +146,6 @@ class HiggsDiffCompTTH(Module):
             mHrightlep = (leps[rightlep].p4()+QFromWFromH[0]+QFromWFromH[1]).M()
             mHwronglep = (leps[wronglep].p4()+QFromWFromH[0]+QFromWFromH[1]).M()
 
-        # Get minDR for closest jets to write & wrong leptons
-        minDRrightlep = -99
-        minDRwronglep = -99
-        closelepidx = -99
-        farlepidx = -99
-        if (len(QFromWFromH)==2 and len(LFromWFromH)==1 and len(thejetsNoB) >= 1):
-            ilist_right = [i for i in sorted(enumerate(thejetsNoB),key=lambda x:x[1].p4().DeltaR(leps[rightlep].p4()))]
-            minDRrightlep = ilist_right[0][1].p4().DeltaR(leps[rightlep].p4())
-            ilist_wrong = [i for i in sorted(enumerate(thejetsNoB),key=lambda x:x[1].p4().DeltaR(leps[wronglep].p4()))]
-            minDRwronglep = ilist_wrong[0][1].p4().DeltaR(leps[wronglep].p4())
-            closelepidx = rightlep if minDRrightlep < minDRwronglep else wronglep
-            farlepidx   = wronglep if minDRrightlep < minDRwronglep else rightlep
-        self.out.fillBranch('%sminDRrightlep'%self.label                          , minDRrightlep)
-        self.out.fillBranch('%sminDRwronglep'%self.label                          , minDRwronglep)
-        self.out.fillBranch('%scloselepidx'%self.label                            , closelepidx)
-        self.out.fillBranch('%sfarlepidx'%self.label                              , farlepidx)
-        
         for jesLabel in self.systsJEC.values():
             htt_PtTop = -99
             htt_MTop  = -99
