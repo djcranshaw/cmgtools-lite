@@ -38,10 +38,11 @@ void producePlots() {
 
   // *** Files ***
   //  TFile f(fileName);
-  TFile fgen ("2lss_diff/Gen/TTHnobb_fxfx_Friend.root");
-  TFile freco("2lss_diff/Reco_NoMassConstraint/TTHnobb_fxfx_Friend.root");
-//  TFile freco("2lss_diff/Reco/TTHnobb_fxfx_Friend.root");
-  TFile fcomp("2lss_diff/Comp/TTHnobb_fxfx_Friend.root");
+  TFile fgen ("2lss_diff/ToPlot/Gen/TTHnobb_fxfx_Friend.root");
+//  TFile freco("2lss_diff/Reco_NoMassConstraint/TTHnobb_fxfx_Friend.root");
+  TFile freco("2lss_diff/ToPlot/Reco/TTHnobb_fxfx_Friend.root");
+//  TFile fcomp("2lss_diff/Comp_NoMassConstraint/TTHnobb_fxfx_Friend.root");
+  TFile fcomp("2lss_diff/ToPlot/Comp/TTHnobb_fxfx_Friend.root");
   TTree *ft     = (TTree*) fgen.Get("Friends");
   TTree *ftreco = (TTree*) freco.Get("Friends");
   TTree *ftcomp = (TTree*) fcomp.Get("Friends");
@@ -784,12 +785,12 @@ void producePlots() {
   tex1.SetNDC(kTRUE);
   tex1.Draw();
 
-  TLegend *leg1 = new TLegend(0.65,0.65,0.85,0.85);
+  TLegend *leg1 = new TLegend(0.45,0.63,0.85,0.83);
   leg1->AddEntry(hst_pTHvis,"Reco");
   leg1->AddEntry(hst_pTHgen,"Gen");
   leg1->AddEntry(hst_pTVisPlusNu,"RecoPlusNu");
-  leg1->AddEntry(hst_pTTrueGen,"Gen(q1) + Gen(q2) + Gen(l)");
-  leg1->AddEntry(hst_pTTrueGenPlusNu,"Gen(q1) + Gen(q2) + Gen(l) + Gen(nu)");
+  leg1->AddEntry(hst_pTTrueGen,"Gen(q1)+Gen(q2)+Gen(l)");
+  leg1->AddEntry(hst_pTTrueGenPlusNu,"Gen(q1)+Gen(q2)+Gen(l)+Gen(nu)");
 //  leg2->AddEntry(hst_pTVis_jets_match,"Reco with Matched Jets");
   leg1->Draw();
   can1->SaveAs("1DDistPlots/plot_PTDists.png");

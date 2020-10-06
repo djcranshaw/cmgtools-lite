@@ -96,7 +96,10 @@ class HiggsDiffCompTTH(Module):
     def analyze(self, event):
         # Some useful input parameters
         year=getattr(event,"year")
-        btagvetoval= HiggsRecoTTHbtagwps["DeepFlav_%d_%s"%(year,self.btagDeepCSVveto)][1]
+        if self.btagDeepCSVveto in ['VL','L','M','T','VT']:
+            btagvetoval = HiggsRecoTTHbtagwps["DeepFlav_%d_%s"%(year,self.btagDeepCSVveto)][1]
+        else:
+            btagvetoval = self.btagDeepCSVveto
 
         # Input collections and maps
 
