@@ -30,6 +30,9 @@ from PhysicsTools.NanoAODTools.postprocessing.modules.common.collectionMerger im
 lepMerge = collectionMerger(input = ["Electron","Muon"], 
                             output = "LepGood", 
                             selector = dict(Muon = muonSelection, Electron = electronSelection))
+lepMerge_2 = lambda x : collectionMerger(input = ["Electron","Muon"], 
+                            output = "LepGood", 
+                            selector = dict(Muon = muonSelection, Electron = electronSelection))
 
 from CMGTools.TTHAnalysis.tools.nanoAOD.ttHLeptonCombMasses import ttHLeptonCombMasses
 lepMasses = ttHLeptonCombMasses( [ ("Muon",muonSelection), ("Electron",electronSelection) ], maxLeps = 4)
@@ -145,6 +148,9 @@ countTaus_veto             = lambda : ObjTagger('Tight'            ,'TauSel_Recl
 countTaus_FO               = lambda : ObjTagger('FO'               ,'TauSel_Recl', [tauFOs]                               ) # actual FO (the FO above is used for jet cleaning, and corresponds to the loose)
 countTaus_2lss1tau_Veto    = lambda : ObjTagger('2lss1tau_Veto'    ,'TauSel_Recl', [tauVeto_2lss_1tau]                    ) # veto ID for 2lss1tau category 
 countTaus_2lss1tau_Tight   = lambda : ObjTagger('2lss1tau_Tight'   ,'TauSel_Recl', [tauTight_2lss_1tau]                   ) # tight ID for 2lss1tau category 
+from CMGTools.TTHAnalysis.tools.nanoAOD.tauMatcher import tauScaleFactors
+
+
 countTaus = [countTaus_veto,countTaus_FO,countTaus_2lss1tau_Veto,countTaus_2lss1tau_Tight]
 
 
@@ -365,6 +371,10 @@ from CMGTools.TTHAnalysis.tools.finalMVA_DNN_3l import finalMVA_DNN_3l
 finalMVA3L = lambda : finalMVA_DNN_3l() # use this for data
 finalMVA3L_allVars = lambda : finalMVA_DNN_3l(variations = [ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'])
 
+from CMGTools.TTHAnalysis.tools.finalMVA_DNN_2lss1tau import finalMVA_DNN_2lss1tau
+finalMVA2lss1tau = lambda : finalMVA_DNN_2lss1tau() # use this for data
+finalMVA2lss1tau_allVars = lambda : finalMVA_DNN_2lss1tau(variations = [ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'])
+
 from CMGTools.TTHAnalysis.tools.nanoAOD.finalMVA_4l import FinalMVA_4L
 finalMVA_4l = lambda : FinalMVA_4L()
 
@@ -440,11 +450,26 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.ttH_gen_reco import ttH_gen_reco
 from CMGTools.TTHAnalysis.tools.higgsDiffGenTTH import higgsDiffGenTTH
 from CMGTools.TTHAnalysis.tools.higgsDiffRecoTTH import higgsDiffRecoTTH, higgsDiffRecoTTH_noWmassConstraint
 from CMGTools.TTHAnalysis.tools.higgsDiffCompTTH import higgsDiffCompTTH, higgsDiffCompTTH_noWmassConstraint
-from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH import higgsDiffRegressionTTH
-from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH_new import higgsDiffRegressionTTH_new
-from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH_3l import higgsDiffRegressionTTH_3l
+from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH import HiggsDiffRegressionTTH
+from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH_new import HiggsDiffRegressionTTH_new
+from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH_3l import HiggsDiffRegressionTTH_3l
+from CMGTools.TTHAnalysis.tools.higgsDiffRegressionTTH_reduced import HiggsDiffRegressionTTH_reduced
 
-from CMGTools.TTHAnalysis.tools.nanoAOD.ttH_CP import ttH_CP
+higgsDiffRegressionTTH = lambda : HiggsDiffRegressionTTH(label='Hreco_',
+                                                         variations=[ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'],
+                                                         btagDeepCSVveto = 'M')
+higgsDiffRegressionTTH_new = lambda : HiggsDiffRegressionTTH_new(label='Hreco_',
+                                                                 variations=[ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'],
+                                                                 btagDeepCSVveto = 'M')
+higgsDiffRegressionTTH_3l = lambda : HiggsDiffRegressionTTH_3l(label='Hreco_',
+                                                               variations=[ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'],
+                                                               btagDeepCSVveto = 'M')
+higgsDiffRegressionTTH_reduced = lambda : HiggsDiffRegressionTTH_reduced(label='Hreco_',
+                                                                         variations=[ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'],
+                                                                         btagDeepCSVveto = 'M')
+
+
+
 from CMGTools.TTHAnalysis.tools.nanoAOD.ttH_genericTreeVarForSR import ttH_genericTreeVarForSR
 
 ttH_2lss_tree = lambda  : ttH_genericTreeVarForSR(2, 
@@ -474,7 +499,7 @@ ttH_2lss1tau_tree = lambda : ttH_genericTreeVarForSR(2,
                                                 ],
                                                      execute=['''taus = [ t for t in Collection(event,'TauSel_Recl')]''',
                                                               '''thetau=taus[int(event.Tau_tight2lss1tau_idx)] if event.Tau_tight2lss1tau_idx > -1 else None;'''],
-                                                     extraVars=[('Tau_pt','thetau.pt'), ('Tau_eta','thetau.eta'), ('Tau_phi','thetau.phi')])
+                                                     extraVars=[('Tau_pt','thetau.pt'), ('Tau_eta','thetau.eta'), ('Tau_phi','thetau.phi')], is2lss1tau=True)
 
 ttH_3l_tree = lambda : ttH_genericTreeVarForSR(3, 
                                              ['len(leps) < 3                                          ',
@@ -489,9 +514,15 @@ ttH_3l_tree = lambda : ttH_genericTreeVarForSR(3,
 ])
 
 
-from CMGTools.TTHAnalysis.tools.nanoAOD.CPmva2lss import CPmva2lss
-cpABCnet = lambda : CPmva2lss()
+from CMGTools.TTHAnalysis.tools.nanoAOD.mvaCP_2lss import mvaCP_2lss
+MVAcp_2lss = lambda : mvaCP_2lss(variations = []) # for data
+MVAcp_2lss_allvars = lambda : mvaCP_2lss(variations = [ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'])
 
-#from CMGTools.TTHAnalysis.tools.nanoAOD.ttH_2lss1tau_higgsreco import ttH_2lss1tau_higgsreco
-#ttH_2lss1tau_reco = lambda : ttH_2lss1tau_higgsreco()
+from CMGTools.TTHAnalysis.tools.nanoAOD.mvaCP_3l import mvaCP_3l
+MVAcp_3l = lambda : mvaCP_3l(variations = []) # for data
+MVAcp_3l_allvars = lambda : mvaCP_3l(variations = [ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'])
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.mvaCP_2lss1tau import mvaCP_2lss1tau
+MVAcp_2lss1tau = lambda : mvaCP_2lss1tau(variations = []) # for data
+MVAcp_2lss1tau_allvars = lambda : mvaCP_2lss1tau(variations = [ 'jes%s'%v for v in jecGroups] + ['jer%s'%x for x in ['barrel','endcap1','endcap2highpt','endcap2lowpt' ,'forwardhighpt','forwardlowpt']  ]  + ['HEM'])
 
