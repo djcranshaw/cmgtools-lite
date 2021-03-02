@@ -9,7 +9,7 @@ from ROOT import *
 import numpy as np
 import math
 import os
-
+import tensorflow as tf
 #ximport dnn_tagger_new_dr
 import h5py
 #import keras as kr
@@ -29,6 +29,18 @@ from keras.models import load_model
 
 class HiggsDiffRegressionTTH_reduced(Module):
     def __init__(self,label="_Recl", variations=[], cut_BDT_rTT_score = 0.0, btagDeepCSVveto = 'M', doSystJEC=True):
+        def loss_MSEDeltaVar(y_true, y_pred):
+            y_true = tf.cast(y_true,tf.float32)
+            y_pred = tf.cast(y_pred,tf.float32)
+            y_true_mean = tf.reduce_mean(y_true)
+            y_pred_mean = tf.reduce_mean(y_pred)
+            base = tf.reduce_mean((y_true-y_pred)**2)
+            var_true = tf.reduce_mean((y_true-y_true_mean)**2)
+            var_pred = tf.reduce_mean((y_pred-y_pred_mean)**2)
+            var_diff = abs(var_true - var_pred)
+            val = base*var_diff
+            return val
+                
         self.label = label
         self.cut_BDT_rTT_score = cut_BDT_rTT_score
         self.btagDeepCSVveto = btagDeepCSVveto
@@ -43,6 +55,8 @@ class HiggsDiffRegressionTTH_reduced(Module):
         self.njet = 5
         self.ngenjet = 8
         self.model_dnn = load_model(os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/regressionMVA/dnn_tagger_new_dr_real.h5"))
+        self.model_regression = load_model(os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/regressionMVA/dnn_trained.h5"), custom_objects={'loss_MSEDeltaVar': loss_MSEDeltaVar})#os.p\
+
 
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         #model_dnn = load_model('dnn_tagger_new_dr.h5') 
@@ -107,7 +121,7 @@ class HiggsDiffRegressionTTH_reduced(Module):
             self.out.branch('%sJets_plus_Lep_mass%s'%(self.label,jesLabel), 'F'   )
 
             self.out.branch('%sevt_tag%s'%(self.label,jesLabel)       , 'F')       
-            
+            self.out.branch('%sdnn_prediction%s'%(self.label, jesLabel)   , 'F')    
             # Gen level, the labels
             self.out.branch('%sHTXS_Higgs_pt'%(self.label) , 'F')
             self.out.branch('%sHTXS_Higgs_y'%(self.label)  , 'F')
@@ -301,9 +315,11 @@ class HiggsDiffRegressionTTH_reduced(Module):
             
 
             #Compute met from events
+            more5_jets = TLorentzVector()
+            more5_jets.SetPtEtaPhiM(0,0,0,0)
             if(len(jets) > self.njet):
-                more5_jets = TLorentzVector()
-                more5_jets.SetPtEtaPhiM(0,0,0,0)
+                #more5_jets = TLorentzVector()
+                #more5_jets.SetPtEtaPhiM(0,0,0,0)
                 for j in range(self.njet, len(jets)):
                     more5_jets = more5_jets + jets[j].p4()
 
@@ -321,7 +337,10 @@ class HiggsDiffRegressionTTH_reduced(Module):
             # I must patch these two to fill only for TTH, otherwise the friend does not exist etc. Maybe produce friend also for background
             #self.out.fillBranch('%sHgen_vis_pt%s'  %(self.label,jesLabel), getattr(event,'Hreco_pTTrueGen'))
             #self.out.fillBranch('%sHgen_tru_pt%s'  %(self.label,jesLabel), getattr(event,'Hreco_pTTrueGenPlusNu')) # the same as HTXS_Higgs_pt
-
+            dnn_pred = self.model_regression.predict(np.transpose(np.array([ [leps[0].p4().Pt()], [leps[0].p4().Eta()], [leps[0].p4().Phi()], [leps[1].p4().Pt()], [leps[1].p4().Eta()], [leps[1].p4().Phi()], [HadTop.Pt() if HadTop is True else -99], [HadTop.Eta() if HadTop is True else -99], [HadTop.Phi() if HadTop is True else -99], [score], [met], [all_jets.Pt()], [all_jets.Eta()], [all_jets.Phi()], [more5_jets.Pt() if(len(jets)) >=self.njet else -10], [more5_jets.Eta() if(len(jets)) >=self.njet else -10], [more5_jets.Phi() if(len(jets)) >=self.njet else -10], [all5_jets.Pt()], [all5_jets.Eta()], [all5_jets.Phi()], [met_phi] ])))
+            #print dnn_pred
+            self.out.fillBranch('%sdnn_prediction%s'%(self.label,jesLabel), dnn_pred)
+            
         return True
 
 higgsDiffRegressionTTH_reduced = lambda : HiggsDiffRegressionTTH_reduced(label='Hreco_',
