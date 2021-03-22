@@ -304,20 +304,22 @@ if options.tik:
             sum5 = gen5reco0+gen5reco1+gen5reco2+gen5reco3+gen5reco4+gen5reco5
             print sum5
 
-    datacard.write('constr1 constr '+str(rlabels[0])+'*('+str(sum0)+')-('+str(sum0)+')-2*'+str(rlabels[1])+'*('+str(sum1)+')+2*('+str(sum1)+')+'+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+') {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
-    datacard.write('constr2 constr '+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+')-2*'+str(rlabels[2])+'*('+str(sum2)+')+2('+str(sum2)+')+'+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+') {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
-    datacard.write('constr3 constr '+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+')-2*'+str(rlabels[3])+'*('+str(sum3)+')+2*('+str(sum3)+')+'+str(rlabels[4])+'*('+str(sum4)+')-('+str(sum4)+') {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
-    datacard.write('constr4 constr '+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+')-2*'+str(rlabels[4])+'*('+str(sum4)+')+2*('+str(sum4)+')+'+str(rlabels[5])+'*('+str(sum5)+')-('+str(sum5)+') {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
+    datacard.write('constr1 constr -'+str(rlabels[0])+'*('+str(sum0)+')+('+str(sum0)+')+'+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+') {rBin1,rBin2} delta[0.03]'+'\n')
+    datacard.write('constr2 constr '+str(rlabels[0])+'*('+str(sum0)+')-('+str(sum0)+')-2*'+str(rlabels[1])+'*('+str(sum1)+')+2*('+str(sum1)+')+'+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+') {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
+    datacard.write('constr3 constr '+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+')-2*'+str(rlabels[2])+'*('+str(sum2)+')+2('+str(sum2)+')+'+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+') {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
+    datacard.write('constr4 constr '+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+')-2*'+str(rlabels[3])+'*('+str(sum3)+')+2*('+str(sum3)+')+'+str(rlabels[4])+'*('+str(sum4)+')-('+str(sum4)+') {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
+    datacard.write('constr5 constr '+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+')-2*'+str(rlabels[4])+'*('+str(sum4)+')+2*('+str(sum4)+')+'+str(rlabels[5])+'*('+str(sum5)+')-('+str(sum5)+') {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
     
 
 if options.SVD:
     rlabels = options.SVD.split(",")
     #print options.SVD
     #print rlabels
-    datacard.write('constr1 constr '+str(rlabels[0])+'-2*'+str(rlabels[1])+'+'+str(rlabels[2])+' {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
-    datacard.write('constr2 constr '+str(rlabels[1])+'-2*'+str(rlabels[2])+'+'+str(rlabels[3])+' {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
-    datacard.write('constr3 constr '+str(rlabels[2])+'-2*'+str(rlabels[3])+'+'+str(rlabels[4])+' {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
-    datacard.write('constr4 constr '+str(rlabels[3])+'-2*'+str(rlabels[4])+'+'+str(rlabels[5])+' {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
+    datacard.write('constr1 constr -'+str(rlabels[0])+'+'+str(rlabels[1])+' {rBin1,rBin2} delta[0.03]'+'\n')
+    datacard.write('constr2 constr '+str(rlabels[0])+'-2*'+str(rlabels[1])+'+'+str(rlabels[2])+' {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
+    datacard.write('constr3 constr '+str(rlabels[1])+'-2*'+str(rlabels[2])+'+'+str(rlabels[3])+' {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
+    datacard.write('constr4 constr '+str(rlabels[2])+'-2*'+str(rlabels[3])+'+'+str(rlabels[4])+' {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
+    datacard.write('constr5 constr '+str(rlabels[3])+'-2*'+str(rlabels[4])+'+'+str(rlabels[5])+' {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
 
     workspace = ROOT.TFile.Open(outdir+binname+".root", "RECREATE")
     for h in towrite:
