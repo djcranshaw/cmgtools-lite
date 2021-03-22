@@ -309,7 +309,6 @@ if options.tik:
     datacard.write('constr3 constr '+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+')-2*'+str(rlabels[2])+'*('+str(sum2)+')+2('+str(sum2)+')+'+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+') {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
     datacard.write('constr4 constr '+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+')-2*'+str(rlabels[3])+'*('+str(sum3)+')+2*('+str(sum3)+')+'+str(rlabels[4])+'*('+str(sum4)+')-('+str(sum4)+') {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
     datacard.write('constr5 constr '+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+')-2*'+str(rlabels[4])+'*('+str(sum4)+')+2*('+str(sum4)+')+'+str(rlabels[5])+'*('+str(sum5)+')-('+str(sum5)+') {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
-    
 
 if options.SVD:
     rlabels = options.SVD.split(",")
@@ -321,13 +320,13 @@ if options.SVD:
     datacard.write('constr4 constr '+str(rlabels[2])+'-2*'+str(rlabels[3])+'+'+str(rlabels[4])+' {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
     datacard.write('constr5 constr '+str(rlabels[3])+'-2*'+str(rlabels[4])+'+'+str(rlabels[5])+' {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
 
-    workspace = ROOT.TFile.Open(outdir+binname+".root", "RECREATE")
-    for h in towrite:
-        workspace.WriteTObject(h,h.GetName())
-    workspace.Close()
+workspace = ROOT.TFile.Open(outdir+binname+".root", "RECREATE")
+for h in towrite:
+    workspace.WriteTObject(h,h.GetName())
+workspace.Close()
 
-    print "Wrote to {0}.txt and {0}.root ".format(outdir+binname)
-    if options.tik:
-        print "You are now ready to run the tikhonov unfolding -- REMINDER: delta is set to 0.03,remeber to adjust it"
-    if options.SVD:
-        print "You are now ready to run the SVD unfolding -- REMINDER: delta is set to 0.03,remeber to adjust it"
+print "Wrote to {0}.txt and {0}.root ".format(outdir+binname)
+if options.tik:
+    print "You are now ready to run the tikhonov unfolding -- REMINDER: delta is set to 0.03,remeber to adjust it"
+if options.SVD:
+    print "You are now ready to run the SVD unfolding -- REMINDER: delta is set to 0.03,remeber to adjust it"
