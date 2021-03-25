@@ -306,7 +306,7 @@ if options.tik:
 
     datacard.write('constr1 constr -'+str(rlabels[0])+'*('+str(sum0)+')+('+str(sum0)+')+'+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+') {rBin1,rBin2} delta[0.03]'+'\n')
     datacard.write('constr2 constr '+str(rlabels[0])+'*('+str(sum0)+')-('+str(sum0)+')-2*'+str(rlabels[1])+'*('+str(sum1)+')+2*('+str(sum1)+')+'+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+') {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
-    datacard.write('constr3 constr '+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+')-2*'+str(rlabels[2])+'*('+str(sum2)+')+2('+str(sum2)+')+'+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+') {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
+    datacard.write('constr3 constr '+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+')-2*'+str(rlabels[2])+'*('+str(sum2)+')+2*('+str(sum2)+')+'+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+') {rBin2,rBin3,rBin4} delta[0.03]'+'\n')
     datacard.write('constr4 constr '+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+')-2*'+str(rlabels[3])+'*('+str(sum3)+')+2*('+str(sum3)+')+'+str(rlabels[4])+'*('+str(sum4)+')-('+str(sum4)+') {rBin3,rBin4,rBin5} delta[0.03]'+'\n')
     datacard.write('constr5 constr '+str(rlabels[3])+'*('+str(sum3)+')-('+str(sum3)+')-2*'+str(rlabels[4])+'*('+str(sum4)+')+2*('+str(sum4)+')+'+str(rlabels[5])+'*('+str(sum5)+')-('+str(sum5)+') {rBin4,rBin5,rBin6} delta[0.03]'+'\n')
 
