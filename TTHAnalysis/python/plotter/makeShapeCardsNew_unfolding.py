@@ -236,73 +236,44 @@ if options.tik:
     
     for p in procs:
         h = report[p]
-        #print p
-        #print h.GetBinContent(1)
-        #if "pt_0_60" in p:
         if str(genlabels[0]) in p:
-            gen0reco0 = h.GetBinContent(1)
-            gen0reco1 = h.GetBinContent(2)
-            gen0reco2 = h.GetBinContent(3)
-            gen0reco3 = h.GetBinContent(4)
-            gen0reco4 = h.GetBinContent(5)
-            gen0reco5 = h.GetBinContent(6)
-            sum0 = gen0reco0+gen0reco1+gen0reco2+gen0reco3+gen0reco4+gen0reco5
-            print sum0
+            sum0=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum0 += h.GetBinContent(i)
+            print "sum0 ", round(sum0,3)
             
-        #if "pt_60_120" in p:
         if str(genlabels[1]) in p:
-            gen1reco0 = h.GetBinContent(1)
-            gen1reco1 = h.GetBinContent(2)
-            gen1reco2 = h.GetBinContent(3)
-            gen1reco3 = h.GetBinContent(4)
-            gen1reco4 = h.GetBinContent(5)
-            gen1reco5 = h.GetBinContent(6)
-            sum1 = gen1reco0+gen1reco1+gen1reco2+gen1reco3+gen1reco4+gen1reco5
-            print sum1
+            sum1=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum1 += h.GetBinContent(i)
+            print "sum1 ", sum1
 
-        #if "pt_120_200" in p:
+
         if str(genlabels[2]) in p:
-            gen2reco0 = h.GetBinContent(1)
-            gen2reco1 = h.GetBinContent(2)
-            gen2reco2 = h.GetBinContent(3)
-            gen2reco3 = h.GetBinContent(4)
-            gen2reco4 = h.GetBinContent(5)
-            gen2reco5 = h.GetBinContent(6)
-            sum2 = gen2reco0+gen2reco1+gen2reco2+gen2reco3+gen2reco4+gen2reco5
-            print sum2
+            sum2=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum2 += h.GetBinContent(i)
+            print "sum2 ",sum2
             
-        #if "pt_200_300" in p:
         if str(genlabels[3]) in p:
-            gen3reco0 = h.GetBinContent(1)
-            gen3reco1 = h.GetBinContent(2)
-            gen3reco2 = h.GetBinContent(3)
-            gen3reco3 = h.GetBinContent(4)
-            gen3reco4 = h.GetBinContent(5)
-            gen3reco5 = h.GetBinContent(6)
-            sum3 = gen3reco0+gen3reco1+gen3reco2+gen3reco3+gen3reco4+gen3reco5
-            print sum3
+            sum3=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum3 += h.GetBinContent(i)
+            print "sum3 ",sum3
 
-        #if "pt_300_450" in p:
+
         if str(genlabels[4]) in p:
-            gen4reco0 = h.GetBinContent(1)
-            gen4reco1 = h.GetBinContent(2)
-            gen4reco2 = h.GetBinContent(3)
-            gen4reco3 = h.GetBinContent(4)
-            gen4reco4 = h.GetBinContent(5)
-            gen4reco5 = h.GetBinContent(6)
-            sum4 = gen4reco0+gen4reco1+gen4reco2+gen4reco3+gen4reco4+gen4reco5
-            print sum4
+            sum4=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum4 += h.GetBinContent(i)
+            print "sum4 ",sum4
 
-        #if "pt_450_inf" in p:
+
         if str(genlabels[5]) in p:
-            gen5reco0 = h.GetBinContent(1)
-            gen5reco1 = h.GetBinContent(2)
-            gen5reco2 = h.GetBinContent(3)
-            gen5reco3 = h.GetBinContent(4)
-            gen5reco4 = h.GetBinContent(5)
-            gen5reco5 = h.GetBinContent(6)
-            sum5 = gen5reco0+gen5reco1+gen5reco2+gen5reco3+gen5reco4+gen5reco5
-            print sum5
+            sum5=0
+            for i in range(1,h.GetNbinsX()+1):
+                sum5 += h.GetBinContent(i)
+            print "sum5 ", sum5
 
     datacard.write('constr1 constr -'+str(rlabels[0])+'*('+str(sum0)+')+('+str(sum0)+')+'+str(rlabels[1])+'*('+str(sum1)+')-('+str(sum1)+') {rBin1,rBin2} delta[0.03]'+'\n')
     datacard.write('constr2 constr '+str(rlabels[0])+'*('+str(sum0)+')-('+str(sum0)+')-2*'+str(rlabels[1])+'*('+str(sum1)+')+2*('+str(sum1)+')+'+str(rlabels[2])+'*('+str(sum2)+')-('+str(sum2)+') {rBin1,rBin2,rBin3} delta[0.03]'+'\n')
