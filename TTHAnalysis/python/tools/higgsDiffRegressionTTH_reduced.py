@@ -2,7 +2,7 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 from CMGTools.TTHAnalysis.tools.nanoAOD.friendVariableProducerTools import declareOutput, writeOutput
 from CMGTools.TTHAnalysis.treeReAnalyzer import Collection as CMGCollection
-from PhysicsTools.Heppy.physicsobjects.Jet import _btagWPs as HiggsRecoTTHbtagwps
+from CMGTools.TTHAnalysis.tools.physicsobjects import _btagWPs as HiggsRecoTTHbtagwps
 
 import ROOT, itertools
 from ROOT import *
